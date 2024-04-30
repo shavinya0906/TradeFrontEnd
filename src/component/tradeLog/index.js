@@ -1121,7 +1121,7 @@ function TradeLog() {
                                   )
                               )}
 
-                            <td>
+                            {/* <td>
                               <Field
                                 type="text"
                                 name="dynamicColumnsField"
@@ -1156,6 +1156,38 @@ function TradeLog() {
                                     },
                                   ]);
                                   setFieldValue("dynamicColumnsField", "");
+                                }}
+                              >
+                                Add Column1
+                              </button>
+                            </td> */}
+
+                            <td>
+                              <Field
+                                type="text"
+                                name="dynamicColumnsField"
+                                value={`${values.dynamicColumnsField}`}
+                                onChange={(e) =>
+                                  setFieldValue(
+                                    "dynamicColumnsField",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (
+                                    values.dynamicColumnsField.trim() !== ""
+                                  ) {
+                                    setFieldValue("dynamicColumnsField", "");
+                                    dispatch(
+                                      createColumnData({
+                                        token: token,
+                                        data: values.dynamicColumnsField,
+                                      })
+                                    );
+                                  }
                                 }}
                               >
                                 Add Column1
