@@ -11,6 +11,7 @@ import Calendar from "../component/calendar";
 import Calculator from "../component/calculator";
 import Mantra from "../component/mantra";
 import Userinfo from "../component/userinfo/userinfo";
+import NotFound from "../component/NotFound"; // Import your 404 component
 
 const DashboardRouter = ({ state }) => {
   return (
@@ -34,8 +35,9 @@ const DashboardRouter = ({ state }) => {
           <Route path="/calculator/*" element={<Calculator />} />
           <Route path="/mantra" element={<Mantra />} />
           <Route path="/userinfo" element={<Userinfo />} />
-          <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Home />} />
+          {/* Catch-all route for unknown paths */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>
     </div>
