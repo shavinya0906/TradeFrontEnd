@@ -11,6 +11,7 @@ import Calendar from "../component/calendar";
 import Calculator from "../component/calculator";
 import Mantra from "../component/mantra";
 import Userinfo from "../component/userinfo/userinfo";
+import NotFound from "../component/404 Page /NotFound";
 
 const DashboardRouter = ({ state }) => {
   return (
@@ -36,7 +37,7 @@ const DashboardRouter = ({ state }) => {
           <Route path="/userinfo" element={<Userinfo />} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Home />} />
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>
     </div>
