@@ -1,0 +1,44 @@
+.userinfo-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.userinfo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-button {
+  background-color: #ff0000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.userinfo-content {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.user-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.user-details {
+  font-size: 16px;
+}
+
+.user-details h3 {
+  margin-bottom: 8px;
+}
