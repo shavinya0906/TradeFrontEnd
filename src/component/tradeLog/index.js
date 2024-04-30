@@ -94,6 +94,9 @@ const tableHeadingObj = {
 };
 
 function TradeLog() {
+  const [columnName, setColumnName] = useState("");
+
+  const [dynamicColumns, setDynamicColumns] = useState([]);
   const dispatch = useDispatch();
   const [image, setImage] = useState(null);
   const formikRef = useRef(null);
@@ -103,11 +106,12 @@ function TradeLog() {
   const isLoading = useSelector((state) => state?.trades?.isLoading);
   const { start, end } = useSelector((state) => state?.trades);
 
-  const userData = localStorage.getItem("persist:root");
-  const data = JSON.parse(userData);
-  const { user } = JSON.parse(data.auth);
-  const [col, setCol] = useState([]);
-  const sortedTableHeading = tableHeading.slice().sort();
+  const handleAddColumn = () => {
+    if (columnName.trim() !== "") {
+      dispatch(createColumnData({ token, data: columnName }));
+      setColumnName(""); // Clear input after adding column
+    }
+  };
 
   useEffect(() => {
     if (end) {
@@ -159,7 +163,7 @@ function TradeLog() {
   const [changes, setChanges] = useState(false);
   const [allIds, setAllIds] = useState([]);
   const { starttDate, enddDate } = useParams();
-
+  console.log(columnDetail);
   useEffect(() => {
     if (strategyData?.length) {
       setStrategies((_prev) => strategyData);
@@ -200,7 +204,7 @@ function TradeLog() {
     asset_class: Yup.string(),
     position_size: Yup.string().required("Required"),
     points_captured: Yup.number(),
-    trade_pnl: Yup.number(),
+    trade_pnl: Yup.number().required("Required"),
     position: Yup.string().required("Required"),
     buy_sell: Yup.string().required("Required"),
     // trade_remark: Yup.string().required("Required"),
@@ -254,6 +258,7 @@ function TradeLog() {
   }
 
   function filterEmptyValues(obj) {
+    // const filteredObject = {};
     const filteredObject = [];
 
     for (const key in obj) {
@@ -536,71 +541,14 @@ function TradeLog() {
     dispatch(getTradeById({ id, token }));
   };
 
-  const updateColumnDetail = (newColumnData) => ({
-    type: "new_column/updateColumnData",
-    payload: newColumnData,
-  });
+  // const handleAddColumn = () => {
+  //   const columnData = { name: values.dynamicColumnsField }; // Assuming dynamicColumnsField holds the name of the new column
+  //   dispatch(createColumnData({ token: token, columnData: columnData }));
+  //   setFieldValue("dynamicColumnsField", ""); // Assuming you're using Formik or similar for form handling
+  // };
 
-  const createColumn = async () => {
-    try {
-      // Dispatch getColumnData action to fetch the current column data
-      dispatch(getColumnData(token));
-
-      // Dispatch createColumnData action to add a new column
-      const response = await dispatch(
-        createColumnData({
-          token: token,
-          data: values.dynamicColumnsField,
-        })
-      );
-
-      // Assuming response.data contains the new column information
-      const newColumnData = response.data;
-
-      // Dispatch updateColumnDetail action to update the Redux store with the latest column details
-      dispatch(updateColumnDetail([...columnDetail, newColumnData]));
-
-      // Fetch the updated column data again
-      dispatch(getColumnData(token));
-
-      // Optionally, clear the dynamicColumnsField input
-      setFieldValue("dynamicColumnsField", "");
-    } catch (error) {
-      console.error("Error creating column:", error);
-    }
-  };
-
-  useEffect(() => {
-    // Fetch column data when the component mounts
-    dispatch(getColumnData(token));
-  }, [dispatch]);
-
-  const deleteColumn = (columnId) => {
-    const token = ""; // Get the token from your state or wherever you store it
-    dispatch(deleteColumnData({ token, columnId }));
-  };
-
-  const handleAddColumn = async () => {
-    try {
-      // Dispatch createColumnData action to add a new column
-      await dispatch(
-        createColumnData({
-          token: token,
-          data: values.dynamicColumnsField,
-        })
-      );
-
-      // After adding a new column, fetch the updated column data
-      dispatch(getColumnData(token));
-
-      // Optionally, update local component state
-      // setCol([...col, { token: token, data: values.dynamicColumnsField }]);
-
-      // Clear the dynamicColumnsField input
-      setFieldValue("dynamicColumnsField", "");
-    } catch (error) {
-      console.error("Error adding column:", error);
-    }
+  const deleteColumn = (column_id) => {
+    dispatch(deleteColumnData({ token: token, id: column_id }));
   };
 
   return (
@@ -713,7 +661,7 @@ function TradeLog() {
                 <Table cellSpacing="0" cellPadding="0">
                   <thead>
                     <tr>
-                      {sortedTableHeading.map((header, _index) => (
+                      {tableHeading.map((header, _index) => (
                         <th key={header}>
                           {header}
                           <span
@@ -785,11 +733,13 @@ function TradeLog() {
                                 deleteColumn(header?.id);
                               }}
                             >
-                              Delete Column
+                              Delete
                             </button>
                           </th>
                         ))}
-
+                      {/* {dynamicColumns.map((customHeader, index) => (
+                        <th key={index}>{customHeader}</th>
+                      ))} */}
                       <th key={"addColumn"}>Dynamic Column</th>
                       <th>Daily Questionnaire</th>
                       <th key={"heads"}>Actions</th>
@@ -826,11 +776,6 @@ function TradeLog() {
                         trade_tags: "",
                         comment: "",
                         dynamicColumnsField: "",
-                        asset_class: "",
-                        // other fields...
-                        dynamicColumnsField: "",
-                        dynamicColumnNames: [], // initialize dynamicColumnNames
-                        // other fields...
                         ...columnDetail?.reduce((acc, item) => {
                           return {
                             ...acc,
@@ -843,6 +788,10 @@ function TradeLog() {
                       onSubmit={handleAddSubmit}
                     >
                       {({ values, setFieldValue, handleSubmit }) =>
+                        // {
+                        //   console.log(values);
+                        // }
+
                         !edit && (
                           <tr key={"first"} className="first">
                             <td>
@@ -1107,6 +1056,9 @@ function TradeLog() {
                             {columnDetail?.length > 0 &&
                               columnDetail?.map(
                                 (items) =>
+                                  //  {
+                                  //   console.log(items);
+                                  // }
                                   items?.column_name && (
                                     <td>
                                       <Field
@@ -1125,7 +1077,7 @@ function TradeLog() {
                               <Field
                                 type="text"
                                 name="dynamicColumnsField"
-                                value={values.dynamicColumnsField}
+                                value={`${values.dynamicColumnsField}`}
                                 onChange={(e) =>
                                   setFieldValue(
                                     "dynamicColumnsField",
@@ -1135,33 +1087,19 @@ function TradeLog() {
                               />
                               <button
                                 type="button"
-                                className="btn btn-primary"
                                 onClick={() => {
-                                  {
-                                    createColumn();
-                                  }
-
+                                  setFieldValue("dynamicColumnsField", "");
                                   dispatch(
                                     createColumnData({
                                       token: token,
                                       data: values.dynamicColumnsField,
                                     })
                                   );
-
-                                  setCol([
-                                    ...col,
-                                    {
-                                      token: token,
-                                      data: values.dynamicColumnsField,
-                                    },
-                                  ]);
-                                  setFieldValue("dynamicColumnsField", "");
                                 }}
                               >
                                 Add Column1
                               </button>
                             </td> */}
-
                             <td>
                               <Field
                                 type="text"
@@ -1194,6 +1132,7 @@ function TradeLog() {
                               </button>
                             </td>
 
+                            <td> </td>
                             <td>
                               <button
                                 type="button"
@@ -1879,7 +1818,7 @@ function TradeLog() {
                                       }}
                                     />
                                   </td>
-
+                                  {/* displaying dynamic fields*/}
                                   {item?.dynamicColumn?.length > 0 &&
                                     matchAndMapColumns(
                                       columnDetail,
@@ -2052,7 +1991,9 @@ function TradeLog() {
                               </button>
                             </th>
                           ))}
-
+                        {/* {dynamicColumns.map((customHeader, index) => (
+                        <th key={index}>{customHeader}</th>
+                      ))} */}
                         <th key={"addColumn"}>Dynamic Column</th>
                         <th key={"heads"}>Actions</th>
                       </tr>
@@ -2097,7 +2038,7 @@ function TradeLog() {
                         validationSchema={tradeSchema}
                         onSubmit={handleAddSubmit}
                       >
-                        {({ values, setFieldValue }) =>
+                        {({ values, setFieldValue, handleSubmit }) =>
                           !edit && (
                             <tr key={"first"} className="first">
                               <td>
@@ -2166,7 +2107,21 @@ function TradeLog() {
                                 />
                               </td>
                               <td>
-                                <Field type="number" name="trade_pnl" />
+                                <Field
+                                  type="number"
+                                  name="trade_pnl"
+                                  // onChange={(e) => {
+                                  //   console.log("value", e.target.value);
+
+                                  //   const value = e.target.valueAsNumber;
+
+                                  //   // setHoldPl((prev) => value);
+                                  //   // if (!value) {
+                                  //   //   return;
+                                  //   // }
+                                  // }}
+                                  // value={holdPl}
+                                />
                                 <ErrorMessage
                                   name="trade_pnl"
                                   component="div"
@@ -2192,6 +2147,8 @@ function TradeLog() {
                                         {el.strategies_name}
                                       </option>
                                     ))}
+                                  {/* <option value="Strategy 1">Strategy 1</option>
+                            <option value="Strategy 2">Strategy 2</option> */}
                                 </Field>
                                 <ErrorMessage
                                   name="strategy_used"
@@ -2226,7 +2183,10 @@ function TradeLog() {
                                   component="div"
                                 />
                               </td>
-
+                              {/* <td>
+                          <Field type="text" name="trade_risk" />
+                          <ErrorMessage name="trade_risk" component="div" />
+                        </td> */}
                               <td>
                                 <input
                                   className="w-[50%]"
@@ -2383,6 +2343,81 @@ function TradeLog() {
                                     />
                                   </td>
                                 ))}
+                              {/* {dynamicColumns.map((customHeader, index) => (
+                              <td key={index}>
+                                <Field name={customHeader} />
+                                <ErrorMessage
+                                  name={customHeader}
+                                  component="div"
+                                />
+                              </td>
+                            ))} */}
+
+                              <td>
+                                <Field
+                                  type="text"
+                                  name="dynamicColumnsField"
+                                  value={`${values.dynamicColumnsField}`}
+                                  onChange={(e) =>
+                                    setFieldValue(
+                                      "dynamicColumnsField",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setDynamicColumns((prevColumns) => [
+                                      ...prevColumns,
+                                      values.dynamicColumn,
+                                    ]);
+                                    setFieldValue("dynamicColumnsField", ""); // Clear the input field after adding
+                                    dispatch(
+                                      createColumnData({
+                                        token: token,
+                                        data: values.dynamicColumnsField,
+                                      })
+                                    );
+                                  }}
+                                >
+                                  Add Column
+                                </button>
+                              </td>
+                              {/* <td>
+                          Render daily questionnaire input field
+                          <Field type="text" name="comment" />
+                          <ErrorMessage name="comment" component="div" />
+                        </td>
+                        <td>
+                          <Field type="text" name="trade_customizable" />
+                          <ErrorMessage
+                            name="trade_customizable"
+                            component="div"
+                          />
+                        </td> */}
+                              {/* {columnDetail?.length > 0 &&
+                          columnDetail?.map((items) => (
+                            <td>
+                              <Field
+                                type="text"
+                                name={`${items?.column_name}`}
+                              />
+                              <ErrorMessage
+                                name={`${items?.column_name}`}
+                                component="div"
+                              />
+                            </td>
+                          ))} */}
+                              <td>
+                                <button
+                                  type="button"
+                                  className="submit-btn"
+                                  onClick={handleSubmit}
+                                >
+                                  Save
+                                </button>
+                              </td>
                             </tr>
                           )
                         }
