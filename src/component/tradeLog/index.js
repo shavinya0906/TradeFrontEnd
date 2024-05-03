@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import {
   tradeLogAdd,
   tradeLogEdit,
@@ -7,6 +8,7 @@ import {
   tradeLogUpdateFilter,
 } from "../../store/slice/tradeLogSlice";
 import { Formik, Field, ErrorMessage } from "formik";
+
 import * as Yup from "yup";
 import Table from "react-bootstrap/Table";
 import "./tradelog.scss";
@@ -102,7 +104,6 @@ function TradeLog() {
   const reduxData = useSelector((state) => state?.trades?.data);
   const isLoading = useSelector((state) => state?.trades?.isLoading);
   const { start, end } = useSelector((state) => state?.trades);
-
   const userData = localStorage.getItem("persist:root");
   const data = JSON.parse(userData);
   const { user } = JSON.parse(data.auth);
@@ -264,6 +265,27 @@ function TradeLog() {
 
     return filteredObject;
   }
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  const handleSaveSubmit = (values, token) => {
+    const filename = "tradelog"; // or you can generate a filename based on the current date or other criteria
+    axios
+      .post(`${apiUrl}/trade/?filename=${filename}`, values, {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        // handle success response, e.g. show a success message or redirect to another page
+      })
+      .catch((error) => {
+        console.error(error);
+        // handle error response, e.g. show an error message
+      });
+  };
 
   const handleAddSubmit = async (values, { resetForm }) => {
     console.log(values);
@@ -575,9 +597,33 @@ function TradeLog() {
     dispatch(getColumnData(token));
   }, [dispatch]);
 
-  const deleteColumn = (columnId) => {
-    // Get the token from your state or wherever you store it
-    dispatch(deleteColumnData({ token, columnId }));
+  // const deleteColumn = (columnId) => {
+  //   // Get the token from your state or wherever you store it
+  //   dispatch(deleteColumnData({ token, columnId }));
+  // };
+
+  const deleteColumn = async (columnId) => {
+    try {
+      // Dispatch deleteColumnData action to delete the column
+      await dispatch(
+        deleteColumnData({
+          token: token,
+          columnId: columnId,
+        })
+      );
+
+      // Dispatch updateColumnDetail action to update the Redux store with the latest column details
+      dispatch(
+        updateColumnDetail(
+          columnDetail.filter((column) => column.id !== columnId)
+        )
+      );
+
+      // Fetch the updated column data again
+      dispatch(getColumnData(token));
+    } catch (error) {
+      console.error("Error deleting column:", error);
+    }
   };
 
   const handleAddColumn = async () => {
@@ -1167,7 +1213,7 @@ function TradeLog() {
                                 type="button"
                                 className="submit-btn"
                                 onClick={() => {
-                                  handleSubmit();
+                                  handleSaveSubmit(values, token);
                                 }}
                               >
                                 Save

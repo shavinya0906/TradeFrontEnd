@@ -26,25 +26,39 @@ export const tradeLogList = createAsyncThunk(
 
 export const tradeLogAdd = createAsyncThunk(
   "tradeLog/tradeLogAdd",
-  async (data) => {
-    if (!data?.values.trade_target) {
-      data.values.trade_target = 0;
+  async (data, { dispatch }) => {
+    const response = await handleSaveSubmit(data.values, data.token);
+    if (response.status === 200) {
+      // dispatch success action, e.g.
+      // dispatch(tradeLogAdded({ tradeLog: response.data }));
+    } else {
+      // dispatch error action, e.g.
+      // dispatch(tradeLogAddError({ error: response.error }));
     }
-    var url = window.location.pathname;
-    var filename = url.substring(url.lastIndexOf("/") + 1) || "tradelog";
-    const response = await axios.post(
-      `${apiUrl}/trade/?filename=${filename}`,
-      data?.values,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${data?.token}`,
-        },
-      }
-    );
-    return response;
   }
 );
+
+// export const tradeLogAdd = createAsyncThunk(
+//   "tradeLog/tradeLogAdd",
+//   async (data) => {
+//     if (!data?.values.trade_target) {
+//       data.values.trade_target = 0;
+//     }
+//     var url = window.location.pathname;
+//     var filename = url.substring(url.lastIndexOf("/") + 1) || "tradelog";
+//     const response = await axios.post(
+//       `${apiUrl}/trade/?filename=${filename}`,
+//       data?.values,
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           authorization: `Bearer ${data?.token}`,
+//         },
+//       }
+//     );
+//     return response;
+//   }
+// );
 
 export const tradeLogEdit = createAsyncThunk(
   "tradeLog/tradeLogEdit",

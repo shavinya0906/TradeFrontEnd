@@ -48,6 +48,7 @@ export const deleteColumnData = createAsyncThunk(
     try {
       await axios.delete(`${apiUrl}/user_column/${columnId}`, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
