@@ -130,6 +130,7 @@ form.trade {
   }
 }
 .add-btn {
+  height: 60px;
   width: 10rem;
   padding: 1rem 2rem;
   display: flex;
@@ -146,7 +147,7 @@ form.trade {
   flex-wrap: wrap;
   justify-content: space-between;
   width: 95%;
-  margin: auto;
+ 
   font-family: "Inter";
   & > div {
     width: 30%;
@@ -154,6 +155,7 @@ form.trade {
     padding: 2rem;
     border-radius: 10px;
     margin-bottom: 2rem;
+    margin-left: 20px;
     h3 {
       font-weight: bold;
       margin-bottom: 1.5rem;
@@ -162,6 +164,11 @@ form.trade {
       line-height: 0.6;
     }
   }
+
+  .trade-edit-button{
+    margin-right: 20px;
+  }
+  
   .add-btn {
     width: 18rem;
     padding: 1rem 2rem;
@@ -173,4 +180,8 @@ form.trade {
     white-space: nowrap;
     cursor: pointer;
   }
+}
+
+.trade-edit-button{
+  margin-right: 20px;
 }

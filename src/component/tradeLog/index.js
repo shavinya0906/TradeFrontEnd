@@ -576,7 +576,7 @@ function TradeLog() {
   }, [dispatch]);
 
   const deleteColumn = (columnId) => {
-    const token = ""; // Get the token from your state or wherever you store it
+    // Get the token from your state or wherever you store it
     dispatch(deleteColumnData({ token, columnId }));
   };
 

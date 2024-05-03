@@ -22,8 +22,8 @@ const StrategiesBoxContent = ({ strategy }) => {
     setFormStatus("edit");
   };
   const removeHandler = () => {
-    dispatch(strategyRemove({ values: {strategies_Id: strategy.id}}))
-  }
+    dispatch(strategyRemove({ values: { strategies_Id: strategy.id } }));
+  };
   return (
     <div
       className="strategy-card more"

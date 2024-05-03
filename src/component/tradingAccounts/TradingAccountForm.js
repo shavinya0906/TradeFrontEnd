@@ -13,18 +13,16 @@ const TradingAccountForm = ({ setFormStatus }) => {
       account_email: "",
       account_name: "",
       trading_account: "",
-      purpose:""
+      purpose: "",
     },
     onSubmit: (values) => {
-      console.log(values);
-      // delete values.purpose;
       const payload = {
         token: token,
         values,
       };
-      console.log(payload,"payloaddd")
+      console.log(payload, "payloaddd");
       dispatch(tradingAccountAdd(payload));
-      setFormStatus("list")
+      setFormStatus("list");
     },
   });
   return (
@@ -41,8 +39,6 @@ const TradingAccountForm = ({ setFormStatus }) => {
             placeholder="id format alphanumeric"
           >
             <option>Select Your Trading Accounts</option>
-            {/* <option>Account 1</option>
-            <option>Account 2</option> */}
             <option>Zerodha</option>
             <option>Angel One</option>
             <option>Groww</option>
@@ -66,8 +62,6 @@ const TradingAccountForm = ({ setFormStatus }) => {
             <option>Religare</option>
             <option>Others</option>
           </select>
-          {/* </div>
-        <div className="form-tile"> */}
           <label htmlFor="account_name">Name</label>
           <input
             id="account_name"
@@ -114,10 +108,13 @@ const TradingAccountForm = ({ setFormStatus }) => {
             placeholder="Write here..."
           />
           <div className="btn-box">
-            <button className="cancel" onClick={() =>{
-              formik.handleReset()
-              setFormStatus("list")
-              }}>
+            <button
+              className="cancel"
+              onClick={() => {
+                formik.handleReset();
+                setFormStatus("list");
+              }}
+            >
               Cancel
             </button>
             <button className="save" onClick={formik.handleSubmit}>

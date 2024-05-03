@@ -12,7 +12,7 @@ export const tradingAccountList = createAsyncThunk(
         authorization: `Bearer ${token}`,
       },
     });
-    console.log("===> I'm response", response)
+    console.log("===> I'm response", response);
     return response;
   }
 );
@@ -20,12 +20,16 @@ export const tradingAccountList = createAsyncThunk(
 export const tradingAccountAdd = createAsyncThunk(
   "tradingAccount/tradingAccountAdd",
   async (data) => {
-    const response = await axios.post(`${apiUrl}/trading-account`, data?.values, {
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${data?.token}`,
-      },
-    });
+    const response = await axios.post(
+      `${apiUrl}/trading-account`,
+      data?.values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${data?.token}`,
+        },
+      }
+    );
     return response;
   }
 );
@@ -33,12 +37,16 @@ export const tradingAccountAdd = createAsyncThunk(
 export const tradingAccountEdit = createAsyncThunk(
   "tradingAccount/tradingAccountEdit",
   async (data) => {
-    const response = await axios.put(`${apiUrl}/trading-account/update/`, data?.values, {
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${data?.token}`,
-      },
-    });
+    const response = await axios.put(
+      `${apiUrl}/trading-account/update/`,
+      data?.values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${data?.token}`,
+        },
+      }
+    );
     return response;
   }
 );
@@ -46,14 +54,39 @@ export const tradingAccountEdit = createAsyncThunk(
 export const tradingAccountUpdateFilter = createAsyncThunk(
   "tradingAccount/tradingAccountFilter",
   async (data) => {
-    console.log(data)
-    const response = await axios.get(`${apiUrl}/trading-account/${data.values}`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${data?.toke}`,
-      },
-    });
+    console.log(data);
+    const response = await axios.get(
+      `${apiUrl}/trading-account/${data.values}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data?.toke}`,
+        },
+      }
+    );
     return response;
+  }
+);
+
+export const tradingAccountDelete = createAsyncThunk(
+  "tradingAccount/tradingAccountDelete",
+  async (data) => {
+    try {
+      const response = await axios.delete(
+        `${apiUrl}/trading-account/${data.accountId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${data.token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      // Handle error if needed
+      console.error("Error deleting trading account:", error);
+      throw error;
+    }
   }
 );
 
@@ -63,7 +96,7 @@ const tradingAccountSlice = createSlice({
     data: [],
     payloadHold: [],
     isAddedOrEdited: false,
-    isLoading: false
+    isLoading: false,
   },
   reducers: {
     addNewData: (state, action) => {
@@ -89,7 +122,7 @@ const tradingAccountSlice = createSlice({
       .addCase(tradingAccountAdd.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAddedOrEdited = true;
-        state.data = [...state.data,action?.payload?.data];
+        state.data = [...state.data, action?.payload?.data];
       })
       .addCase(tradingAccountAdd.rejected, (state, action) => {
         state.isLoading = false;
@@ -105,6 +138,22 @@ const tradingAccountSlice = createSlice({
         // state.data = action?.payload?.data;
       })
       .addCase(tradingAccountEdit.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isAddedOrEdited = false;
+      })
+      .addCase(tradingAccountDelete.pending, (state, action) => {
+        state.isLoading = true;
+        state.isAddedOrEdited = false;
+      })
+      .addCase(tradingAccountDelete.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAddedOrEdited = true;
+        // Filter out the deleted trading account from the state
+        state.data = state.data.filter(
+          (account) => account.id !== action.payload.data.id
+        );
+      })
+      .addCase(tradingAccountDelete.rejected, (state, action) => {
         state.isLoading = false;
         state.isAddedOrEdited = false;
       });

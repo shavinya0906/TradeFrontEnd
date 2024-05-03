@@ -32,7 +32,6 @@ const Mantra = () => {
     "Yo-yo trick",
   ];
 
-  // State to store the selected mantra
   const [selectedMantra, setSelectedMantra] = useState("");
 
   // Set a random mantra when the component mounts
