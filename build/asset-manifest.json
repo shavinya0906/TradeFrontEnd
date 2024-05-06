@@ -1,0 +1,40 @@
+{
+  "files": {
+    "main.css": "/static/css/main.5ccd0e0f.css",
+    "main.js": "/static/js/main.67be2099.js",
+    "static/js/453.7521e4af.chunk.js": "/static/js/453.7521e4af.chunk.js",
+    "static/media/DMSans-Regular.ttf": "/static/media/DMSans-Regular.5796ba67a2ae308b784c.ttf",
+    "static/media/noTradeLogData.svg": "/static/media/noTradeLogData.f7dfaa20567795a9dfd71d7c3d54b193.svg",
+    "static/media/noData.svg": "/static/media/noData.57ccbe00a6f3d7368758f5a7f62e7bea.svg",
+    "static/media/tradeJournalLogo.svg": "/static/media/tradeJournalLogo.8bc26909af023e3748267f670b8d0cd0.svg",
+    "static/media/calander.svg": "/static/media/calander.a7020b60cd8862d6466fd5bd15e7cc2f.svg",
+    "static/media/Pen New Square.svg": "/static/media/Pen New Square.9937a724dc445ebcce099b34890e77ee.svg",
+    "static/media/Hand Money.svg": "/static/media/Hand Money.686d3b7f4694d610cbd90eac0c974762.svg",
+    "static/media/Setting.svg": "/static/media/Setting.047f5e3747d9891a4e2a6dd663c5f6d8.svg",
+    "static/media/filterIcon.svg": "/static/media/filterIcon.4e17c289222ca6d009adceb139d435a0.svg",
+    "static/media/clock.svg": "/static/media/clock.2316389162f3d847ba78cf3247b96897.svg",
+    "static/media/Chart 2.svg": "/static/media/Chart 2.c42c955d5b04dbf025b26403af53b3d5.svg",
+    "static/media/Round Graph.svg": "/static/media/Round Graph.f207fa7eec19dee3f3acf2a20a0d6b30.svg",
+    "static/media/editFilter.svg": "/static/media/editFilter.4c0ac4f5c99fdc52004c43dac562a6af.svg",
+    "static/media/Siderbar.svg": "/static/media/Siderbar.93e60b8f41946100d40b27607ee30664.svg",
+    "static/media/invertedCommas.svg": "/static/media/invertedCommas.b5d0bd272adaeafcaf167446677311b0.svg",
+    "static/media/Home.svg": "/static/media/Home.02c644b4379d92546375f1f557c25adc.svg",
+    "static/media/closeIcon.svg": "/static/media/closeIcon.833b89e56f6c1411e55edcf53f4b632d.svg",
+    "static/media/Activity.svg": "/static/media/Activity.8dfb398a89f9d195abc1607149e8827c.svg",
+    "index.html": "/index.html",
+    "static/media/export.svg": "/static/media/export.cd8d826c6b0e3e1f7aadab03f84f6214.svg",
+    "static/media/PrevIcon.svg": "/static/media/PrevIcon.2204b6b232ff4d731d1556d28e654626.svg",
+    "static/media/NextIcon.svg": "/static/media/NextIcon.2615c45cdbfcfe2ae700f470701dcef6.svg",
+    "static/media/chevron-down.svg": "/static/media/chevron-down.3cc42db84b54a63e906d.svg",
+    "static/media/plus.svg": "/static/media/plus.4d3313a62eaf4915ac4b57a6d7a1acfd.svg",
+    "static/media/arrowUp.svg": "/static/media/arrowUp.1079ed9a5c0f7b396304d814b2abaccc.svg",
+    "static/media/arrowDown.svg": "/static/media/arrowDown.3ca87f3a433f8c64e628fef2e6f53ae6.svg",
+    "main.5ccd0e0f.css.map": "/static/css/main.5ccd0e0f.css.map",
+    "main.67be2099.js.map": "/static/js/main.67be2099.js.map",
+    "453.7521e4af.chunk.js.map": "/static/js/453.7521e4af.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5ccd0e0f.css",
+    "static/js/main.67be2099.js"
+  ]
+}
