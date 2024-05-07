@@ -61,8 +61,6 @@ const tableHeading = [
   "Trading account",
   "Opening Balance",
   "Image",
-  "Dynamic Coloumn",
-  "Actions",
 ];
 
 const tableHeadingObj = {
@@ -93,7 +91,6 @@ const tableHeadingObj = {
   "Trading account": { label: "trading_account", type: "string" },
   "Opening Balance": { label: "opening_balance", type: "number" },
   Image: { label: "image", type: "string" },
-  "Dynamic Coloumn": { label: "dynamic coloumn", type: "string" },
   // "Trade Customizable": { label: "trade_customizable", type: "string" },
   // "Daily questionnaire": { label: "comment", type: "string" },
 };
@@ -238,7 +235,6 @@ function TradeLog() {
     }),
     comment: Yup.string(),
   });
-
   function calculateOpeningBalance(originalObject) {
     //Opening balance = prev opening balance +pnl - charges - penalties
     const pnl = originalObject?.trade_pnl;
@@ -608,6 +604,7 @@ function TradeLog() {
 
   const deleteColumn = async (columnId) => {
     try {
+      // Dispatch deleteColumnData action to delete the column
       await dispatch(
         deleteColumnData({
           token: token,
@@ -838,6 +835,7 @@ function TradeLog() {
                             </button>
                           </th>
                         ))}
+
                       <th key={"addColumn"}>Dynamic Column</th>
                       <th>Daily Questionnaire</th>
                       <th key={"heads"}>Actions</th>
@@ -846,37 +844,31 @@ function TradeLog() {
                   <tbody>
                     <Formik
                       initialValues={{
-                        trade_date: "",
                         asset_class: "",
+                        position_size: "",
+                        points_captured: "",
+                        trade_pnl: "",
                         position: "",
                         buy_sell: "",
-                        position_size: "",
+                        trade_remark: "",
+                        trade_karma: "",
+                        trade_date: "",
+                        holding_trade_type: "",
+                        trade_charges: "",
+                        trading_account: "",
                         stop_loss: "",
                         trade_target: "",
-                        trade_pnl: "",
-                        points_captured: "",
-                        net_roi: "",
-                        strategy_used: "",
-                        holding_trade_type: "",
                         trade_conviction: "",
+                        strategy_used: "",
                         trade_risk: "",
-
-                        reason_for_trade: "",
-                        trade_karma: "",
                         reason_for_trade: "",
                         percentage_of_account_risked: "",
-                        trade_charges: "",
+                        image: "",
                         trade_slippage: "",
                         trade_penalties: "",
-                        trading_account: "",
-                        opening_balance: "",
-                        image: "",
-
-                        trade_remark: "",
-                        trade_conviction: "",
-
+                        net_roi: "",
                         trade_customizable: "",
-
+                        opening_balance: "",
                         trade_tags: "",
                         comment: "",
                         dynamicColumnsField: "",
@@ -896,9 +888,9 @@ function TradeLog() {
                       validationSchema={tradeSchema}
                       onSubmit={handleAddSubmit}
                     >
-                      {({ values, setFieldValue, handleSubmit, index }) =>
+                      {({ values, setFieldValue, handleSubmit }) =>
                         !edit && (
-                          <tr key={index} className="first">
+                          <tr key={"first"} className="first">
                             <td>
                               <ReactDatePicker
                                 id="trade_date"
@@ -936,7 +928,6 @@ function TradeLog() {
                               <Field as="select" name="buy_sell">
                                 <option>Select</option>
                                 <option value="Buy">Buy</option>
-
                                 <option value="Sell">Sell</option>
                               </Field>
                               <ErrorMessage name="buy_sell" component="div" />
@@ -1130,7 +1121,6 @@ function TradeLog() {
                                 component="div"
                               />
                             </td>
-
                             <td>
                               <Field type="number" name="opening_balance" />
                               <ErrorMessage
@@ -1138,7 +1128,6 @@ function TradeLog() {
                                 component="div"
                               />
                             </td>
-
                             <td className="special-col">
                               <input
                                 type="file"
@@ -1178,7 +1167,7 @@ function TradeLog() {
                                   )
                               )}
 
-                            {/* <td>
+                            <td>
                               <Field
                                 type="text"
                                 name="dynamicColumnsField"
@@ -1217,9 +1206,9 @@ function TradeLog() {
                               >
                                 Add Column1
                               </button>
-                            </td> */}
+                            </td>
 
-                            {/* <td>
+                            <td>
                               <button
                                 type="button"
                                 className="submit-btn"
@@ -1227,9 +1216,9 @@ function TradeLog() {
                                   handleSaveSubmit(values, token);
                                 }}
                               >
-                                Save h
+                                Save
                               </button>
-                            </td> */}
+                            </td>
                           </tr>
                         )
                       }
@@ -1238,7 +1227,7 @@ function TradeLog() {
                       tradeList?.map((item, index) => {
                         return (
                           <Formik
-                            key={id}
+                            key={index}
                             initialValues={{
                               asset_class: item?.asset_class || "",
                               position_size: item?.position_size || "",
@@ -1284,7 +1273,7 @@ function TradeLog() {
                           >
                             {({ values, setFieldValue }) => {
                               return (
-                                <tr key={1} className={index}>
+                                <tr key={index} className={index}>
                                   <td>
                                     {id === item?.id || edit ? (
                                       <ReactDatePicker
@@ -1943,7 +1932,7 @@ function TradeLog() {
                                         )}
                                       </td>
                                     ))}
-
+                                  <td> </td>
                                   <td>
                                     <button
                                       onClick={() => {

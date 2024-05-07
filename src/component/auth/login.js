@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import {
@@ -25,23 +25,26 @@ const Login = () => {
   const [isActiveSession, setIsActiveSession] = useState(false);
 
   const loginSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
       .min(8, "Too Short!")
       .max(50, "Too Long!")
-      .required("Password is required"),
+      .required("Required"),
+    email: Yup.string().email("Invalid email").required("Required"),
   });
 
   useEffect(() => {
+    // Clear authentication token and session timeout on component mount
     sessionStorage.removeItem("authToken");
 
+    // Set up session timeout
     let timeoutId;
 
     const resetTimeout = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(
         () => {
-          handleLogout();
+          // Perform logout or session expiration actions here
+          handleLogout(); // Example function to logout the user
         },
         isActiveSession ? ACTIVE_SESSION_TIMEOUT : INACTIVE_SESSION_TIMEOUT
       );
@@ -56,7 +59,7 @@ const Login = () => {
     window.addEventListener("mousemove", handleUserActivity);
     window.addEventListener("keypress", handleUserActivity);
 
-    resetTimeout();
+    resetTimeout(); // Initialize timeout on component mount
 
     return () => {
       clearTimeout(timeoutId);
@@ -66,6 +69,7 @@ const Login = () => {
   }, [isActiveSession]);
 
   const handleLogout = () => {
+    // Clear session data and redirect to login page
     sessionStorage.removeItem("authToken");
     sessionStorage.removeItem("isActiveSession");
     navigate("/login");
@@ -73,10 +77,16 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await dispatch(LoginUser(values));
+      const response = await dispatch(LoginUser(values)); // Wait for the dispatch to complete
 
+      const {
+        payload: { email }, // Extract email from the payload
+      } = response;
+
+      // Dispatch fetchUserData and wait for it to complete
       await dispatch(fetchUserData());
 
+      // Store authentication token in session storage
       sessionStorage.setItem("authToken", "yourAuthToken");
 
       setSubmitting(false);
@@ -115,11 +125,6 @@ const Login = () => {
                     placeholder="Enter email"
                     as={FormControl}
                   />
-                  <ErrorMessage
-                    name="email"
-                    component="div"
-                    className="text-danger"
-                  />
                 </FormGroup>
 
                 <FormGroup className="mb-3">
@@ -129,11 +134,6 @@ const Login = () => {
                     name="password"
                     placeholder="Enter Password"
                     as={FormControl}
-                  />
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="text-danger"
                   />
                 </FormGroup>
 
