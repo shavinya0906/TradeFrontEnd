@@ -122,6 +122,25 @@ export const getTradeById = createAsyncThunk(
   }
 );
 
+const handleSaveSubmit = (values, token) => {
+  const filename = "tradelog"; // or you can generate a filename based on the current date or other criteria
+  axios
+    .post(`${apiUrl}/trade/?filename=${filename}`, values, {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      // handle success response, e.g. show a success message or redirect to another page
+    })
+    .catch((error) => {
+      console.error(error);
+      // handle error response, e.g. show an error message
+    });
+};
+
 const tradeLogSlice = createSlice({
   name: "tradeLog",
   initialState: {
