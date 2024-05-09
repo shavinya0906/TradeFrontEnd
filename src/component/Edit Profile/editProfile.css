@@ -1,0 +1,43 @@
+/* Add your custom CSS styles here */
+
+.container-fluid {
+  padding: 20px;
+}
+
+.full-screen {
+  height: 100vh;
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+
+.panel-heading {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.panel-body {
+  font-size: 16px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.col-xs-6 {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.btn-primary {
+  margin-top: 20px;
+}
+
+.btn-lg {
+  margin-right: 10px;
+}
+
+/* Add your additional custom styles below */

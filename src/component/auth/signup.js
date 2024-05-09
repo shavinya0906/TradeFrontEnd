@@ -9,7 +9,7 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const params = useParams();
-  const user = useSelector((state) => state?.users?.data);
+  const users = useSelector((state) => state.users.data);
   const [initialValues, setInitialValues] = useState({
     first_name: "",
     last_name: "",
@@ -20,10 +20,13 @@ const Signup = () => {
   });
 
   useEffect(() => {
-    if (user) {
-      setInitialValues(user);
+    if (params.id) {
+      const user = users.find((user) => user.id === params.id);
+      if (user) {
+        setInitialValues(user);
+      }
     }
-  }, [user, params.id]);
+  }, [params.id, users]);
 
   const userSchema = Yup.object().shape({
     first_name: Yup.string().required("Enter your first name"),
@@ -42,7 +45,9 @@ const Signup = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     // Check if the user with the provided email already exists
-    const isDuplicate = user && user.email === values.email;
+    const isDuplicate = users.some(
+      (user) => user.email === values.email && user.id !== params?.id
+    );
 
     // If it's a duplicate, display an alert and return
     if (isDuplicate) {

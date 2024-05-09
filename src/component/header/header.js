@@ -6,10 +6,6 @@ import clockIcon from "../../assets/images/clock.svg";
 import ReactDatePicker from "react-datepicker";
 import calander from "../../assets/images/calander.svg";
 import handMoney from "../../assets/images/Hand Money.svg";
-
-import { Image } from "react-bootstrap"; // Import necessary components
-// import { useAuth0 } from "@auth0/auth0-react"; // Import useAuth0 hook
-
 import { useDispatch, useSelector } from "react-redux";
 import { calenderEnd, calenderStart } from "../../store/slice/tradeLogSlice";
 import { updateTradeAnalyticsData } from "../../store/slice/tradeAnalyticsSlice";
@@ -184,45 +180,38 @@ const Header = () => {
       </div>
 
       <div className="header-buttons-container">
-        <Button variant="primary" onClick={handleShowModal}>
-          View Profile
-        </Button>
-        {/* View Profile Modal */}
-        <Modal
-          size="md"
-          show={lgShow}
-          onHide={() => setLgShow(false)}
-          aria-labelledby="example-modal-sizes-title-lg"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title id="example-modal-sizes-title-lg">
-              User Info
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <div style={{ textAlign: "center" }}>
-              {/* <h4>{first_name}</h4>
-              <h5>{email}</h5> */}
-              {user && (
-                <>
-                  <Image
-                    src={user.picture}
-                    roundedCircle
-                    style={{ width: "100px", height: "100px" }}
-                  />
+        <Dropdown>
+          <Dropdown.Toggle variant="primary" id="dropdown-basic">
+            View Profile
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item
+              onClick={() => {
+                navigate("/editProfile");
+              }}
+            >
+              Edit Profile
+            </Dropdown.Item>
+            {/* {user && (
+              <>
+                <img
+                  src={user.picture}
+                  alt="User"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                  }}
+                />
+                <div>
                   <h4>{user.first_name}</h4>
                   <p>Email: {user.email}</p>
-                </>
-              )}
-              <Button
-                variant="primary"
-                onClick={() => logout({ returnTo: window.location.origin })}
-              >
-                Logout
-              </Button>
-            </div>
-          </Modal.Body>
-        </Modal>
+                </div>
+              </>
+            )} */}
+            <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </div>
   );

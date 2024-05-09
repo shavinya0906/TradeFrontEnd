@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// const userAPIUrl = "http://localhost:3000";
 const userAPIUrl = process.env.REACT_APP_USER_API_URL;
 
 export const addUser = createAsyncThunk("user/AddUser", async (userData) => {
@@ -32,6 +33,49 @@ export const updateUser = createAsyncThunk(
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+///////////////////////////////////////////////////////////
+
+export const updateUserDetails = createAsyncThunk(
+  "user/updateUserDetails",
+  async (userData) => {
+    try {
+      const response = await axios.put(`${userAPIUrl}/update-user/`, userData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+// Async thunk to update password
+export const updatePassword = createAsyncThunk(
+  "user/updatePassword",
+  async (passwordData) => {
+    try {
+      console.log("Url = ", userAPIUrl);
+      const response = await axios.put(
+        `${userAPIUrl}/update-password`, // Assuming this is the correct endpoint]]]]]]]
+        passwordData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
