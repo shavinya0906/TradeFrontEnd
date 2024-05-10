@@ -108,7 +108,7 @@ function TradeLog() {
   const data = JSON.parse(userData);
   const { user } = JSON.parse(data.auth);
   const [col, setCol] = useState([]);
-  const sortedTableHeading = tableHeading.slice().sort();
+  const sortedTableHeading = tableHeading.slice();
 
   useEffect(() => {
     if (end) {
@@ -435,10 +435,10 @@ function TradeLog() {
     sort: "ASC",
   });
 
-  const sortDataBy = (data, byKey) => {
+  function sortDataBy(data, byKey) {
     let sortedData;
     const arrayForSort = [...data];
-    if (sort?.sort === "ASC") {
+    if (sort?.sort === "ASC" || !sort?.sort) {
       if (byKey.type == "string") {
         sortedData = arrayForSort.sort((a, b) => {
           let x = a[byKey.label]?.toLowerCase();
@@ -476,8 +476,7 @@ function TradeLog() {
       }
     }
     setTradeList(sortedData);
-  };
-
+  }
   const [searchText, setSearchText] = useState("");
 
   const handleSearchInputChange = (event) => {

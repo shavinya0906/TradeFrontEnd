@@ -38,28 +38,6 @@ export const tradeLogAdd = createAsyncThunk(
   }
 );
 
-// export const tradeLogAdd = createAsyncThunk(
-//   "tradeLog/tradeLogAdd",
-//   async (data) => {
-//     if (!data?.values.trade_target) {
-//       data.values.trade_target = 0;
-//     }
-//     var url = window.location.pathname;
-//     var filename = url.substring(url.lastIndexOf("/") + 1) || "tradelog";
-//     const response = await axios.post(
-//       `${apiUrl}/trade/?filename=${filename}`,
-//       data?.values,
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//           authorization: `Bearer ${data?.token}`,
-//         },
-//       }
-//     );
-//     return response;
-//   }
-// );
-
 export const tradeLogEdit = createAsyncThunk(
   "tradeLog/tradeLogEdit",
   async (data) => {

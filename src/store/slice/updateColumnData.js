@@ -23,61 +23,64 @@ export const updateColumnData = createAsyncThunk(
         }
       );
 
-      const columnSlice = createSlice({
-        name: "new_column",
-        initialState: {
-          data: [],
-          isLoading: false,
-        },
-        reducers: {
-          updateColumnData: (state, action) => {
-            state.data = action.payload;
-          },
-        },
-        extraReducers: (builder) => {
-          builder
-            .addCase(getColumnData.pending, (state, action) => {
-              state.isLoading = true;
-            })
-            .addCase(getColumnData.fulfilled, (state, action) => {
-              state.data = action.payload;
-              state.isLoading = false;
-            })
-            .addCase(getColumnData.rejected, (state, action) => {
-              state.isLoading = false;
-              // Handle error
-            })
-            .addCase(createColumnData.pending, (state, action) => {
-              state.isLoading = true;
-            })
-            .addCase(createColumnData.fulfilled, (state, action) => {
-              state.data = [...state.data, action.payload];
-              state.isLoading = false;
-            })
-            .addCase(createColumnData.rejected, (state, action) => {
-              state.isLoading = false;
-              // Handle error
-            })
-            .addCase(deleteColumnData.pending, (state, action) => {
-              state.isLoading = true;
-            })
-            .addCase(deleteColumnData.fulfilled, (state, action) => {
-              state.data = state.data.filter(
-                (column) => column.id !== action.payload.deletedColumnId
-              );
-              state.isLoading = false;
-            })
-            .addCase(deleteColumnData.rejected, (state, action) => {
-              state.isLoading = false;
-              // Handle error
-            });
-        },
-      });
-
-      export const { updateColumnData } = columnSlice.actions;
-
-      export default columnSlice.reducer;
-    } finally {
+      return res.data;
+    } catch (error) {
+      // Handle error
+      console.error("Error updating column data:", error);
+      throw error;
     }
   }
 );
+
+const columnSlice = createSlice({
+  name: "new_column",
+  initialState: {
+    data: [],
+    isLoading: false,
+  },
+  reducers: {
+    updateColumnData: (state, action) => {
+      state.data = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getColumnData.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(getColumnData.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(getColumnData.rejected, (state, action) => {
+        state.isLoading = false;
+        // Handle error
+      })
+      .addCase(createColumnData.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(createColumnData.fulfilled, (state, action) => {
+        state.data = [...state.data, action.payload];
+        state.isLoading = false;
+      })
+      .addCase(createColumnData.rejected, (state, action) => {
+        state.isLoading = false;
+        // Handle error
+      })
+      .addCase(deleteColumnData.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteColumnData.fulfilled, (state, action) => {
+        state.data = state.data.filter(
+          (column) => column.id !== action.payload.deletedColumnId
+        );
+        state.isLoading = false;
+      })
+      .addCase(deleteColumnData.rejected, (state, action) => {
+        state.isLoading = false;
+        // Handle error
+      });
+  },
+});
+
+export default columnSlice.reducer;

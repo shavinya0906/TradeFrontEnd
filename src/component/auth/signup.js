@@ -45,16 +45,16 @@ const Signup = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     // Check if the user with the provided email already exists
-    const isDuplicate = users.some(
-      (user) => user.email === values.email && user.id !== params?.id
-    );
+    // const isDuplicate = users.some(
+    //   (user) => user.email === values.email && user.id !== params?.id
+    // );
 
-    // If it's a duplicate, display an alert and return
-    if (isDuplicate) {
-      alert("User with this email already exists");
-      setSubmitting(false);
-      return;
-    }
+    // // If it's a duplicate, display an alert and return
+    // if (isDuplicate) {
+    //   alert("User with this email already exists");
+    //   setSubmitting(false);
+    //   return;
+    // }
 
     // If it's not a duplicate, dispatch the addUser action
     await dispatch(addUser(values));
