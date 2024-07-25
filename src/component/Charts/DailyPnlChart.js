@@ -77,6 +77,7 @@ export const DailyPnlChart = ({ dataList }) => {
         }
       },
     },
+    maxBarThickness: 40,
   };
   
   function formatDate(dateString) {

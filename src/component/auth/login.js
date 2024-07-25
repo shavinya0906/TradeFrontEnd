@@ -80,17 +80,18 @@ const Login = () => {
       const response = await dispatch(LoginUser(values)); // Wait for the dispatch to complete
 
       const {
-        payload: { email }, // Extract email from the payload
+        payload: {token, email }, // Extract email from the payload
       } = response;
+
 
       // Dispatch fetchUserData and wait for it to complete
       await dispatch(fetchUserData());
 
       // Store authentication token in session storage
-      sessionStorage.setItem("authToken", "yourAuthToken");
+      sessionStorage.setItem("authToken", token);
 
       setSubmitting(false);
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
       setSubmitting(false);
@@ -104,7 +105,7 @@ const Login = () => {
       onSubmit={handleSubmit}
     >
       {({ isSubmitting }) => (
-        <Container>
+        <Container fluid>
           <Row style={{ display: "flex", justifyContent: "space-between" }}>
             <Col md={6} className="login__form--container">
               <Form
@@ -113,7 +114,7 @@ const Login = () => {
                   display: "flex",
                   flexDirection: "column",
                   marginTop: "-50px",
-                  marginLeft: "-40px",
+                  marginLeft: "50px",
                 }}
               >
                 <h1>Login to your account</h1>
@@ -149,6 +150,7 @@ const Login = () => {
                   Don't have an account?{" "}
                   <Link to="/signup">Create account</Link>{" "}
                 </p>
+                <Link to="/">Back to main</Link>
               </Form>
             </Col>
             <Col md={6} className="login__image--container"></Col>

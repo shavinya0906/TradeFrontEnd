@@ -40,8 +40,8 @@ const Header = () => {
   const location = useLocation();
   const token = reduxData?.auth?.token;
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endddDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
+  const [endddDate, setEndDate] = useState(null);
 
   const currentMonthRange = (date) => {
     var firstDayThisMonth = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -95,6 +95,8 @@ const Header = () => {
     dispatch(updateTradeAnalyticsData({ token: token, values: payloadUrl }));
   };
 
+
+
   useEffect(() => {
     var url = window.location.pathname;
     var filename = url.split("/")[1];
@@ -127,6 +129,7 @@ const Header = () => {
     </button>
   ));
 
+  
   return (
     <div className="header-wrapper">
       <div className="header-left-wrap">
@@ -179,36 +182,13 @@ const Header = () => {
         )}
       </div>
 
-      <div className="header-buttons-container">
+      <div className="drop_button">
         <Dropdown>
           <Dropdown.Toggle variant="primary" id="dropdown-basic">
             View Profile
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item
-              onClick={() => {
-                navigate("/editProfile");
-              }}
-            >
-              Edit Profile
-            </Dropdown.Item>
-            {/* {user && (
-              <>
-                <img
-                  src={user.picture}
-                  alt="User"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                  }}
-                />
-                <div>
-                  <h4>{user.first_name}</h4>
-                  <p>Email: {user.email}</p>
-                </div>
-              </>
-            )} */}
+            <Dropdown.Item onClick={() => {navigate("/editProfile");}} >Edit Profile</Dropdown.Item>
             <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
