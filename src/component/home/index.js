@@ -98,10 +98,10 @@ const Home = () => {
         <div className="row mt-5 main-card-wrap">
           <div className="col-md-6 col-12 ">
             <div className="insights-card chat-card list-box">
-              <p>Insights</p>
+              <p className="para_text">Insights</p>
               <ul
                 id="arrow-list"
-                style={{ overflowY: "auto", height: "400px" }}
+                style={{ overflowY: "auto", height: "400px", textAlign: "left" }}
               >
                 <li>
                   {dataList?.netPNL?.toFixed(2)
@@ -168,7 +168,7 @@ const Home = () => {
                     : (!isOneMonthGap(dataList?.startDate, dataList?.endDate) &&
                         dataList?.totalTradePenalties <
                           0.2 * dataList?.openingBalance) ||
-                      (isOneMonthGap(dataList?.startDate, dataList?.endDate) &&
+                      (isOneMonthGap(dataList?.startDate, dataList?.endDate) && 
                         dataList?.totalTradePenalties <
                           0.2 * dataList?.openingBalance)
                     ? insightsData[16]
@@ -223,7 +223,7 @@ const Home = () => {
           <div className="col-md-6 col-12 chat-card">
             <Card style={{boxShadow: "5px 5px 5px 2px rgba(204, 204, 204, 0.379)"}}>
               {/* <Card.Header>Equity Curve</Card.Header> */}
-              <p>Equity Curve</p>
+              <p className="para_text">Equity Curve</p>
               <div className="card-body">
                 <CurveChart dataList={dataList} />
               </div>
@@ -234,7 +234,7 @@ const Home = () => {
         <div className="row mt-5">
           <div className="col-md-6 col-12 chat-card">
             <Card style={{boxShadow: "5px 5px 5px 2px rgba(204, 204, 204, 0.379)"}}>
-              <p>Strategy Performance</p>
+              <p className="para_text">Strategy Performance</p>
               {/* <Card.Header>Strategy Performance</Card.Header> */}
               <div className="card-body">
                 <GroupedBarChart dataList={dataList} />
@@ -244,8 +244,7 @@ const Home = () => {
           </div>
           <div className="col-md-6 col-12 chat-card">
             <Card style={{boxShadow: "5px 5px 5px 2px rgba(204, 204, 204, 0.379)"}}>
-              <p>Daily PNL</p>
-              {/* <Card.Header>Daily PNL</Card.Header> */}
+              <p className="para_text">Daily PNL</p>
               <div className="card-body">
                 <DailyPnlChart dataList={dataList} />
               </div>
