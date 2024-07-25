@@ -5,10 +5,10 @@ import Login from "../component/auth/login";
 import Signup from "../component/auth/signup";
 import ForgetPassword from "../component/auth/forgetPassword";
 
+
 const AppRoutes = () => {
   return (
     <div>
-      <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<PrivateRoute />}>
             <Route path="/*" element={<Dashboard />} />
@@ -18,7 +18,6 @@ const AppRoutes = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgetpassword" element={<ForgetPassword />} />
         </Routes>
-      </BrowserRouter>
     </div>
   );
 };

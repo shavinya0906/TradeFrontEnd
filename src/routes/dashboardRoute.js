@@ -11,7 +11,7 @@ import Calendar from "../component/calendar";
 import Calculator from "../component/calculator";
 import Mantra from "../component/mantra";
 import Userinfo from "../component/userinfo/userinfo";
-import NotFound from "../component/404 Page /NotFound";
+import NotFound from "../component/404 Page/NotFound";
 import EditProfile from "../component/Edit Profile/editProfile";
 
 const DashboardRouter = ({ state }) => {
@@ -27,7 +27,7 @@ const DashboardRouter = ({ state }) => {
           <Route
             path="/tradelog/:starttDate?/:enddDate?"
             element={<TradeLog />}
-          />
+          /> 
           <Route path="/strategies" element={<Strategies />} />
           <Route path="/trading-accounts" element={<TradingAccounts />} />
           <Route path="/trader-analytics/*" element={<TradeAnalytics />} />
@@ -35,7 +35,6 @@ const DashboardRouter = ({ state }) => {
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/calculator/*" element={<Calculator />} />
           <Route path="/mantra" element={<Mantra />} />
-          <Route path="/userinfo" element={<Userinfo />} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Home />} />
           <Route path="/editProfile" element={<EditProfile />} />

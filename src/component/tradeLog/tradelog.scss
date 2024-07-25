@@ -37,6 +37,7 @@
           &:last-child {
             border: none;
           }
+
         }
       }
 
@@ -195,3 +196,37 @@
     align-items: center;
   }
 }
+
+.add_button {
+  background-color: #0075ff;
+  color: white;
+  border: none;
+  padding: 2px 14px;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: #0367da;
+    transition: 0.5s ease;
+  }
+}
+
+.prev_eye:hover{
+  cursor: pointer;
+}
+
+.fill_button {
+  background: linear-gradient(90deg, #0075ff, #339beb);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 12px;
+  font-weight: 500;
+
+  &:hover {
+    background: linear-gradient(90deg, #339beb, #0075ff);
+    transition: 1.5s ease;
+  }
+}
+
+
+

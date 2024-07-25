@@ -34,19 +34,20 @@ const TradeAccountList = ({ list, setFormStatus }) => {
             <p>{el?.account_mobile}</p>
             <p>{el?.purpose}</p>
           </div>
-          <button className="edit-btn" onClick={() => handleEdit(el)}>
+          <button className="ed-del-btn" onClick={() => handleEdit(el)}>
             Edit
           </button>
+          {"  "}
           <button
-            className="delete-btn"
+            className="ed-del-btn"
             onClick={() => handleDelete(el?.account_Id)}
           >
             Delete
           </button>
         </div>
       ))}
-      <div className="add-btn" onClick={() => setFormStatus("add")}>
-        + Add New Trading Account
+      <div className="nnnn" id="sepa">
+        <button className="acc-btn"onClick={() => setFormStatus("add")}>+ Add New Trading Account</button>
       </div>
     </div>
   );

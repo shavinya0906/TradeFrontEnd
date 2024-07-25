@@ -17,7 +17,6 @@ export const tradeLogList = createAsyncThunk(
         },
       }
     );
-    console.log(response);
     return response;
   }
 );
@@ -30,10 +29,10 @@ export const tradeLogAdd = createAsyncThunk(
     const response = await handleSaveSubmit(data.values, data.token);
     if (response.status === 200) {
       // dispatch success action, e.g.
-      // dispatch(tradeLogAdded({ tradeLog: response.data }));
+      dispatch(tradeLogAdded({ tradeLog: response.data }));
     } else {
       // dispatch error action, e.g.
-      // dispatch(tradeLogAddError({ error: response.error }));
+      dispatch(tradeLogAddError({ error: response.error }));
     }
   }
 );
@@ -82,7 +81,7 @@ export const updateTrade = createAsyncThunk(
     return response;
   }
 );
-
+ 
 export const getTradeById = createAsyncThunk(
   "tradeLog/getTradeById",
   async ({ id, token }) => {
@@ -93,7 +92,7 @@ export const getTradeById = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-      return response; // Assuming the trade data is in the response's data property0
+      return response; 
     } catch (error) {
       throw error;
     }
@@ -251,7 +250,7 @@ const tradeLogSlice = createSlice({
         state.isLoading = false;
         state.isAddedOrEdited = false;
       })
-      //adding for getTradeByID
+
       .addCase(getTradeById.pending, (state, action) => {
         state.isLoading = true;
         state.isAddedOrEdited = false;
@@ -266,6 +265,5 @@ const tradeLogSlice = createSlice({
       });
   },
 });
-export const { calenderStart, calenderEnd, newFilterData } =
-  tradeLogSlice.actions;
+export const { calenderStart, calenderEnd, newFilterData } = tradeLogSlice.actions;
 export default tradeLogSlice.reducer;

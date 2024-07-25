@@ -129,18 +129,6 @@ form.trade {
     }
   }
 }
-.add-btn {
-  height: 60px;
-  width: 10rem;
-  padding: 1rem 2rem;
-  display: flex;
-  margin-left: auto;
-  border-radius: 10px;
-  color: white;
-  background: #0075ff;
-  white-space: nowrap;
-  cursor: pointer;
-}
 
 .list-head {
   display: flex;
@@ -169,19 +157,38 @@ form.trade {
     margin-right: 20px;
   }
   
-  .add-btn {
-    width: 18rem;
-    padding: 1rem 2rem;
-    display: flex;
-    margin-left: auto;
-    border-radius: 10px;
-    color: white;
-    background: #0075ff;
-    white-space: nowrap;
-    cursor: pointer;
-  }
 }
 
 .trade-edit-button{
   margin-right: 20px;
 }
+
+.nnnn{
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.acc-btn{
+  width: 80%;
+  background-color: #0075ff;
+  height: 47px;
+  border: none;
+  border-radius: 13px;
+  color: white;
+  cursor: pointer;
+}
+
+#sepa{
+  background-color: white;
+}
+
+.ed-del-btn{
+  background-color: #8fc1fa;
+  border: none;
+  width: 100px;
+  padding: 5px;
+  border-radius: 5px;
+  background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+}
+
+

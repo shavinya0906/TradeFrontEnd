@@ -3,7 +3,7 @@ import axios from "axios";
 
 const userAPIUrl = process.env.REACT_APP_USER_API_URL;
 
-export const addUser = createAsyncThunk("user/AddUser", async (userData) => {
+export const addUser = createAsyncThunk("user/AddUser", async (userData,{ rejectWithValue }) => {
   userData["status"] = 1;
   try {
     const response = await axios.post(
@@ -16,8 +16,14 @@ export const addUser = createAsyncThunk("user/AddUser", async (userData) => {
       }
     );
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    if (err.response) {
+        return rejectWithValue({
+            status: err.response.status,
+            message: err.response.data.message || err.response.statusText
+        });
+    }
+    return rejectWithValue({ message: err.message });
   }
 });
 
@@ -63,6 +69,7 @@ const userSlice = createSlice({
     builder
       .addCase(addUser.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(addUser.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -71,7 +78,7 @@ const userSlice = createSlice({
       })
       .addCase(addUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(updateUser.pending, (state) => {
         state.isLoading = true;
