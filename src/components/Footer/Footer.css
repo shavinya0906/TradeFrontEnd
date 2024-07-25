@@ -1,0 +1,317 @@
+.container6 {
+  height: auto; /* Adjusted to auto for responsiveness */
+  min-height: 100vh; /* Ensures the container takes at least the full viewport height */
+  background: rgba(27, 30, 49, 1);
+  padding: 20px; /* Increased padding for better spacing */
+}
+
+#commmm{
+  text-align: left;
+  align-items: start;
+}
+
+.mini {
+  margin-top: 50px; /* Adjusted margin for smaller screens */
+  margin-left: 10%; /* Adjusted margin for better centering on smaller screens */
+}
+
+.divider5 {
+  position: relative;
+  color: #ffffff;
+  margin-top: 30px; /* Adjusted margin for better spacing */
+}
+
+.divider5::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -10px;
+  /* Adjust this value to move the line closer or farther from the text */
+  width: 2px;
+  /* Width of the line */
+  height: 50%;
+  /* Height of the line */
+  background: linear-gradient(
+    62.57deg,
+    #fbb040 5.17%,
+    #fbb040 12.63%,
+    #fff200 59.88%
+  );
+  /* Color of the line */
+}
+
+.here {
+  margin-left: 10%; /* Adjusted margin for better centering on smaller screens */
+  margin-right: 10%; /* Adjusted margin for better centering on smaller screens */
+  color: rgba(168, 169, 179, 1);
+  font-size: 14px; /* Adjusted font size for smaller screens */
+}
+
+.input-container {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.icons {
+  padding: 7px;
+  background: linear-gradient(
+    62.57deg,
+    #fbb040 5.17%,
+    #fbb040 12.63%,
+    #fff200 59.88%
+  );
+  color: white;
+  height: 42px;
+  min-width: 50px;
+  text-align: center;
+  font-size: 20px; /* Adjusted font size for smaller screens */
+}
+
+.input-field {
+  flex: 1;
+  padding: 10px;
+  width: 150px;
+  outline: none;
+  border-bottom: 3px solid;
+  border-image: linear-gradient(
+    62.57deg,
+    #fbb040 5.17%,
+    #fbb040 12.63%,
+    #fff200 59.88%
+  );
+  border-image-slice: 1;
+}
+
+#inp {
+  border-radius: 0px;
+}
+
+.input-field:focus {
+  border: 2px solid #fff200;
+}
+
+.btn {
+  background-color: dodgerblue;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+.btn:hover {
+  opacity: 1;
+}
+.form {
+  justify-content: center;
+  margin-left: 16%;
+}
+.input-group.input-group-lg {
+  background: linear-gradient(
+    62.57deg,
+    #fbb040 5.17%,
+    #fbb040 12.63%,
+    #fff200 59.88%
+  );
+  /* Add any additional styles you want for the input group */
+}
+
+.input-group.input-group-lg input[type="email"] {
+  background: transparent;
+  /* To make the input field transparent */
+  /* Add any additional styles you want for the email input */
+}
+
+.input-group.input-group-lg .input-group-text {
+  background: transparent;
+  /* To make the icon transparent */
+  /* Add any additional styles you want for the icon */
+}
+
+.input-group.input-group-lg .input-group-text i {
+  color: #000;
+  /* Change the icon color if needed */
+  /* Add any additional styles you want for the icon */
+}
+
+.input-group.input-group-lg .subscribe-btn {
+  background: linear-gradient(
+    62.57deg,
+    #fbb040 5.17%,
+    #fbb040 12.63%,
+    #fff200 59.88%
+  );
+  /* Add any additional styles you want for the button */
+}
+
+.follow {
+  color: rgba(255, 255, 255, 1);
+  margin-left: 10%; /* Adjusted margin for smaller screens */
+  font-size: 18px; /* Adjusted font size for smaller screens */
+}
+
+.logos {
+  margin-left: 10%; /* Adjusted margin for smaller screens */
+  margin-top: 22px;
+}
+
+.logos img {
+  margin: 0 5px;
+  max-width: 30px; /* Limit image width */
+  height: auto;
+}
+
+.mini2 {
+  height: 250px; /* Adjusted height for smaller screens */
+  width: 80%; /* Adjusted width for better centering on smaller screens */
+  margin: 50px auto; /* Centered horizontally */
+}
+
+.email-form {
+  max-width: 80%; /* Adjusted width for better centering on smaller screens */
+  margin: 0 auto; /* Centered horizontally */
+}
+
+.pages {
+  color: rgba(168, 169, 179, 1);
+}
+
+.pages > p {
+  text-align: left;
+}
+
+.mini3 {
+  height: 200px; /* Adjusted height for smaller screens */
+  width: 80%; /* Adjusted width for better centering on smaller screens */
+  background: rgba(36, 40, 60, 1);
+  margin: 50px auto; 
+  text-align: left;
+}
+
+.need {
+  color: rgba(255, 255, 255, 1);
+  padding-top: 20px; /* Adjusted padding for smaller screens */
+  font-size: 18px; /* Adjusted font size for smaller screens */
+  font-family: "Poppins", sans-serif;
+}
+
+.whatsapp {
+  color: rgba(168, 169, 179, 1);
+  font-size: 14px; /* Adjusted font size for smaller screens */
+  font-family: "Poppins", sans-serif;
+  margin-left: 10%; /* Adjusted margin for smaller screens */
+  margin-right: 10%; /* Adjusted margin for smaller screens */
+}
+
+.live {
+  height: 60px; /* Adjusted height for smaller screens */
+  width: 80%; /* Adjusted width for better centering on smaller screens */
+  background-color: rgba(27, 30, 49, 1);
+  margin: 0 auto; /* Centered horizontally */
+}
+
+.horizontal {
+  border-bottom: 3px solid rgba(50, 54, 79, 1);
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 10%; /* Adjusted margin for smaller screens */
+  margin-right: 5%; /* Adjusted margin for smaller screens */
+}
+
+.footer-text {
+  margin: 0;
+}
+
+.my {
+  background: linear-gradient(
+    62.57deg,
+    #fbb040 5.17%,
+    #fbb040 12.63%,
+    #fff200 59.88%
+  );
+  -webkit-background-clip: text;
+  /* For Safari */
+  background-clip: text;
+  color: transparent;
+}
+
+.all {
+  color: rgba(168, 169, 179, 1);
+}
+
+.credit img {
+  margin: 0 5px;
+  max-width: 30px; /* Limit image width */
+  height: auto;
+}
+@media (max-width: 768px) {
+  .footer-container {
+    display: flex;
+    justify-content: center;
+    margin-left: 10%;
+    margin-right: 5%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+@media only screen and (min-width: 1024px) {
+  .mini {
+    margin-top: 100px; /* Adjusted margin for larger screens */
+    margin-left: 20%; /* Adjusted margin for larger screens */
+  }
+
+  .here {
+    margin-left: 20%; /* Adjusted margin for larger screens */
+    margin-right: 20%; /* Adjusted margin for larger screens */
+    font-size: 16px; /* Adjusted font size for larger screens */
+  }
+
+  .follow {
+    margin-left: 20%; /* Adjusted margin for larger screens */
+    font-size: 22px; /* Adjusted font size for larger screens */
+  }
+
+  .logos {
+    margin-left: 20%; /* Adjusted margin for larger screens */
+  }
+
+  .mini2 {
+    height: 300px; /* Adjusted height for larger screens */
+    width: 60%; /* Adjusted width for larger screens */
+    margin: 100px auto; /* Centered horizontally */
+  }
+
+  .email-form {
+    max-width: 60%; /* Adjusted width for larger screens */
+  }
+
+  .mini3 {
+    height: 250px; /* Adjusted height for larger screens */
+    width: 60%; /* Adjusted width for larger screens */
+    margin: 100px auto; /* Centered horizontally */
+  }
+
+  .need {
+    margin-left: 20%; /* Adjusted margin for larger screens */
+    font-size: 22px; /* Adjusted font size for larger screens */
+  }
+
+  .whatsapp {
+    margin-left: 20%; /* Adjusted margin for larger screens */
+    margin-right: 20%; /* Adjusted margin for larger screens */
+  }
+
+  .live {
+    width: 60%; /* Adjusted width for larger screens */
+  }
+
+  .footer-container {
+    margin-left: 20%; /* Adjusted margin for larger screens */
+    margin-right: 10%; /* Adjusted margin for larger screens */
+  }
+}

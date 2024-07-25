@@ -1,0 +1,109 @@
+.container4 {
+  height: auto;
+  min-height: 100vh;
+  background: rgba(27, 30, 49, 1);
+  padding: 20px;
+}
+
+.center-text {
+  justify-content: center;
+  text-align: center;
+  color: rgba(234, 234, 234, 1);
+  padding-top: 50px;
+}
+
+.journal {
+  padding-top: 20px;
+  color: rgba(255, 255, 255, 1);
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  justify-content: center;
+  width: 100%;
+}
+
+.review {
+  background: rgba(36, 40, 60, 1);
+  padding: 15px;
+  border-radius: 5px;
+  min-height: 320px;
+  height: auto;
+  width: 100%; /* Changed to 100% for better responsiveness */
+  max-width: 400px; /* Set a max-width to maintain the card size */
+  border: 1px solid rgba(53, 57, 79, 1);
+}
+
+.img-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 20px;
+  gap: 10px;
+}
+
+.img-svg img {
+  max-width: 50px;
+  height: auto;
+}
+
+.inneralign {
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid rgba(53, 57, 79, 1);
+  border-bottom: 1px solid rgba(53, 57, 79, 1);
+}
+
+.testimonial-name {
+  font-size: 18px; /* Adjusted font size for visibility */
+  background: linear-gradient(62.57deg, #fbb040 5.17%, #fbb040 12.63%, #fff200 59.88%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.position {
+  color: rgba(255, 255, 255, 1);
+  font-size: 14px;
+}
+
+.review-text {
+  color: rgba(235, 236, 243, 1);
+  font-size: 14px;
+  padding-top: 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.divider4 {
+  color: rgba(50, 54, 79, 1);
+  margin-top: 20px;
+}
+
+/* #lefticon,
+#righticon {
+  display: none;
+} */
+
+@media only screen and (min-width: 768px) {
+  .review {
+    margin-top: 72px;
+  }
+
+  .img-svg {
+    justify-content: flex-start;
+  }
+
+  #lefticon,
+  #righticon {
+    display: block;
+    text-align: center;
+    padding-top: 25px;
+  }
+}
+
+.navigation-icons {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.navigation-icons .disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

@@ -1,0 +1,15 @@
+.cardd-body{
+    justify-content: center;
+    display: flex;
+}
+
+.bnn{
+    justify-content: center;
+    margin: 0px 38px 30px 38px;
+}
+
+.backk{
+    justify-content: center;
+    width: 100%;
+    margin-left: 35px;
+}

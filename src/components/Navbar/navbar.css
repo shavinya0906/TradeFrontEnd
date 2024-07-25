@@ -1,0 +1,57 @@
+.bbbbbbbbbbbbbbbb {
+    background-color: rgba(27, 30, 49, 1) !important; 
+    color: #513b3b !important;
+    border: none;
+    padding: 10px 20px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .bbbbbbbbbbbbbbbb:hover {
+    color: black;
+    background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+  }
+  
+
+.divider0 {
+    width: 1px;
+    height: 23px;
+    background: rgba(232, 232, 232, 1);
+    margin-right: 40px;
+    margin-top: 7px;
+
+}
+
+.nav-linking{
+    margin-right: 15px; 
+    font-size: 17px !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    color: black;
+}
+
+/* .toggle-icon:hover{
+  background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+} */
+
+.navbar-toggler:hover{
+  background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+  color: black;
+  border: none !important;
+}
+
+.nav{
+  background-color: #ffffff !important;
+}
+
+.nav-btn{
+  border: none;
+  background-color: #ffffff;
+}
+
+#navbar_buttonsss {
+  color: rgb(86, 89, 91);
+}
+
+#navbar_buttonsss:hover {
+  color: black;
+}

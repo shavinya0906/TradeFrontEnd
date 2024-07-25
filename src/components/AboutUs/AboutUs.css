@@ -1,0 +1,30 @@
+.abt-img{
+    width: 100%;
+}
+.About {
+    /* width: 223px; */
+    /* height: 48px; */
+    font-weight: 500;
+    font-size: 40px;
+    /* line-height: 48px; */
+    /* line-height: 48px; */
+}
+#aboutUs {
+    font-size: 40px;
+    background-image: linear-gradient(90deg, #FBB040 0.61%, #FFF200 42%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.aboutletters {
+    font-family: Poppins;
+    font-weight: 400;
+    /* font-size: 20px; */
+    /* line-height: 30px; */
+}
+
+.aboutpart2 {
+    font-family: Poppins;
+    font-weight: 600;
+    /* font-size: 20px; */
+    /* line-height: 30px; */
+}

@@ -1,0 +1,72 @@
+.compare{
+    text-align: center;
+    color:rgba(36, 36, 36, 1);
+    font-family: poppins;
+    font-size: 40px;
+    padding-top: 2%;
+}
+
+#plan {
+    background-image: linear-gradient(90deg, #FBB040 0%, #FBB040 43.83%, #FFF200 99.33%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+#choose {
+    padding-top: 2%;
+    font-family: poppins;
+    vertical-align: baseline;
+    padding-left: 2%;
+    font-size: 24px;
+    background: rgba(244, 244, 244, 1);
+}
+
+#yearly {
+    width: 30%;
+    background: rgba(20, 50, 93, 1);
+    margin-left: 4%;
+}
+
+.content-pricing{
+    text-align: center;
+}
+.heading-bolder {
+    font-size:20px;
+}
+.text_basic {
+    margin-top: 7%;
+    /* padding-left: 32%; */
+    font-family: poppins;
+    color: rgba(27, 30, 49, 1);
+    font-size: 26px;
+}
+.table_text {
+    padding-left: 4%;
+}
+.icon_check {
+    /* margin-left: 39%; */
+    /* vertical-align: sub; */
+    font-size: 21px;
+    color: green;
+    text-align:center;
+}
+.icon-center{
+    text-align: center;
+}
+.gradient-icon {
+    margin-left: 4%;
+    font-size: 20px;
+    background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@media (max-width:768px){
+    #yearly {
+        width: 80%;
+    }
+    .heading-bolder {
+        font-size: 15px;
+    }
+}

@@ -1,0 +1,54 @@
+#maintext{
+    /* color: yellow; */
+    background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-align: center;
+}
+
+.py-5{
+    background-color: rgba(27, 30, 49, 1)!important;
+   
+    background: url('../../../public/img/bg1.3.png') right no-repeat,url('../../../public/img/bg.png')left no-repeat;
+    
+    /* Add your background image URL here */
+    background-size: contain,contain;
+  
+    height: 50%;
+
+}
+
+#para{
+    color: #ffffff;
+}
+
+.lead {
+    color: rgba(168, 169, 179, 1);
+    text-align: justify center;
+    margin-left: 3%;
+    margin-right: 3%;
+    /* margin-left: 6%; */
+    /* margin-right: 2%; */
+    /* padding-left: 170px; */
+    /* padding-right: 170px; */
+    font-family: poppins;
+}
+
+#btn {
+    width: 248px;
+    top: 690px;
+    left: 836px;
+    border-radius: 6px;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+    background-color: black;
+    color: white;
+    font-family: poppins;
+    font-size: 23px;
+    display: inline-block;
+}
+#btn:hover{
+    color: black;
+    background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
+}

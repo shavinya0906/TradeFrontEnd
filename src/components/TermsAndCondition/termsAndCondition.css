@@ -1,0 +1,22 @@
+.Tophead {
+    font-family: Poppins;
+    font-weight: 700;
+    font-size: 27px;
+    line-height: 40px;
+    text-align: center;
+    color: #000000;
+}
+
+.part1 {
+    font-family: Poppins;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+}
+
+.letters {
+    font-family: Poppins;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 30px;
+}
