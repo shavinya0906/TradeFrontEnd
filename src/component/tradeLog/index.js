@@ -8,7 +8,6 @@ import {
   tradeLogUpdateFilter,
 } from "../../store/slice/tradeLogSlice";
 import { Formik, Field, ErrorMessage } from "formik";
-
 import * as Yup from "yup";
 import Table from "react-bootstrap/Table";
 import "./tradelog.scss";
@@ -19,6 +18,7 @@ import {
   createColumnData,
   deleteColumnData,
 } from "../../store/slice/newColumnSlice";
+import eye from "../../assets/images/eye.svg";
 import EditIcon from "../../assets/images/editFilter.svg";
 import FilterIcon from "../../assets/images/filterIcon.svg";
 import ExportIcon from "../../assets/images/export.svg";
@@ -35,6 +35,7 @@ import Pagination from "./Pagination";
 import DailyQuestionnaire from "./DailyQuestionnaire";
 import { getTradeById, updateTrade } from "../../store/slice/tradeLogSlice";
 import Loader from "./../Loader";
+import DailyQA from "./DailyQA";
 
 const tableHeading = [
   "Date",
@@ -61,6 +62,16 @@ const tableHeading = [
   "Trading account",
   "Opening Balance",
   "Image",
+];
+
+const sortableHeaders = [
+  "Position Size",
+  "Points Captured",
+  "PnL",
+  "% of account risked",
+  "Slippage",
+  "Net ROI",
+  "Charges",
 ];
 
 const tableHeadingObj = {
@@ -91,8 +102,6 @@ const tableHeadingObj = {
   "Trading account": { label: "trading_account", type: "string" },
   "Opening Balance": { label: "opening_balance", type: "number" },
   Image: { label: "image", type: "string" },
-  // "Trade Customizable": { label: "trade_customizable", type: "string" },
-  // "Daily questionnaire": { label: "comment", type: "string" },
 };
 
 function TradeLog() {
@@ -109,6 +118,8 @@ function TradeLog() {
   const { user } = JSON.parse(data.auth);
   const [col, setCol] = useState([]);
   const sortedTableHeading = tableHeading.slice();
+  const sortable_TableHeadings = sortableHeaders.slice();
+  const [tradeList, setTradeList] = useState([]);
 
   useEffect(() => {
     if (end) {
@@ -125,6 +136,7 @@ function TradeLog() {
       setTradeList(() => reduxData.data);
     }
   }, [end, reduxData]);
+
   async function getBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -135,8 +147,6 @@ function TradeLog() {
       reader.onerror = reject;
     });
   }
-
-  const [tradeList, setTradeList] = useState([]);
 
   useEffect(() => {
     if (reduxData?.data?.length) {
@@ -152,7 +162,7 @@ function TradeLog() {
   const [accountList, setAccountList] = useState([]);
   const strategyData = useSelector((state) => state?.strategy?.data);
   const tradingAccounts = useSelector((state) => state?.tradingAccounts?.data);
-  const [edit, setEdit] = useState();
+  const [edit, setEdit] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [startDate1, setStartDate1] = useState(new Date());
   const [id, setId] = useState("");
@@ -199,19 +209,17 @@ function TradeLog() {
 
   const tradeSchema = Yup.object().shape({
     asset_class: Yup.string(),
-    position_size: Yup.string().required("Required"),
+    position_size: Yup.number().required("Required"),
     points_captured: Yup.number(),
     trade_pnl: Yup.number(),
     position: Yup.string().required("Required"),
     buy_sell: Yup.string().required("Required"),
-    // trade_remark: Yup.string().required("Required"),
     trade_karma: Yup.string(),
     trade_date: Yup.string().required("Required"),
     holding_trade_type: Yup.string(),
     trade_charges: Yup.number().required("Required"),
     trading_account: Yup.string(),
     stop_loss: Yup.string(),
-    // trade_target: Yup.string(),
     trade_conviction: Yup.string(),
     strategy_used: Yup.string(),
     trade_risk: Yup.string(),
@@ -234,9 +242,11 @@ function TradeLog() {
       }),
     }),
     comment: Yup.string(),
+    questionnaire_answers: Yup.array().of(Yup.string()),
   });
+
   function calculateOpeningBalance(originalObject) {
-    //Opening balance = prev opening balance +pnl - charges - penalties
+    //Opening balance = prev opening balance + pnl - charges - penalties
     const pnl = originalObject?.trade_pnl;
     const charges = originalObject?.trade_charges;
     const penalties = originalObject?.trade_penalties;
@@ -254,72 +264,100 @@ function TradeLog() {
     return calculatedBalance;
   }
 
-  function filterEmptyValues(obj) {
-    const filteredObject = [];
+  // function filterEmptyValues(obj) {
+  //   const filteredObject = {};
 
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] !== "") {
-        filteredObject[key] = obj[key];
-      }
-    }
+  //   for (const key in obj) {
+  //     if (obj.hasOwnProperty(key) && obj[key] !== "") {
+  //       filteredObject[key] = obj[key];
+  //     }
+  //   }
 
-    return filteredObject;
-  }
+  //   return filteredObject;
+  // }
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSaveSubmit = (values, token) => {
-    const filename = "tradelog"; // or you can generate a filename based on the current date or other criteria
+    // Extract dynamic columns
+    const dc = Object.keys(values)
+      .filter((key) => columnDetail.some((col) => col.column_name === key))
+      .map((key) => ({
+        column_name: key,
+        value: values[key],
+      }));
+
+    // Remove dynamic columns from values object
+    const sv = Object.keys(values).reduce((acc, key) => {
+      if (!columnDetail.some((col) => col.column_name === key)) {
+        acc[key] = values[key];
+      }
+      return acc;
+    }, {});
+
+    // Add the dynamicColumn array to sanitizedValues
+    sv.dynamicColumn = dc;
+
+    const filename = "tradelog";
     axios
-      .post(`${apiUrl}/trade/?filename=${filename}`, values, {
+      .post(`${apiUrl}/trade/?filename=${filename}`, sv, {
         headers: {
           "Content-Type": "application/json",
           authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
-        console.log(response.data);
-        // handle success response, e.g. show a success message or redirect to another page
+        console.log(
+          "Saved in database. This is response from backend: ",
+          response.data
+        );
+        alert("Saved.");
       })
       .catch((error) => {
         console.error(error);
-        // handle error response, e.g. show an error message
+        alert("An error occurred while saving the data. Please try again.");
       });
   };
 
-  const handleAddSubmit = async (values, { resetForm }) => {
-    console.log(values);
-    for (const obj of columnDetail) {
-      // dispatch(createColumnData({token:token,data:obj.column_name}));
-      const newObject = {
-        key: obj.id,
-        value: values[obj.column_name] || "",
-      };
-      values.dynamicColumn = [...values.dynamicColumn, newObject];
-      delete values[obj.column_name];
-    }
-    delete values.dynamicColumnsField;
-    values.trade_date = moment(values?.trade_date).format("yyyy-MM-DD");
-    let payload = {
-      token: token,
-      values: filterEmptyValues(values),
-      // values: { ...values, image: imageBase },
-    };
-    if (image) {
-      const imageBase = await getBase64(image);
-      payload = {
-        ...payload,
-        values: {
-          ...payload.values,
-          image: imageBase,
-        },
-      };
-    }
+  // const handleAddSubmit = async (values, { resetForm }) => {
+  //   console.log("This is handleAddSubmit");
+  //   for (const obj of columnDetail) {
+  //     // dispatch(createColumnData({token:token,data:obj.column_name}));
+  //     const newObject = {
+  //       key: obj.id,
+  //       value: values[obj.column_name] || "",
+  //     };
+  //     values.dynamicColumn = [...values.dynamicColumn, newObject];
+  //     delete values[obj.column_name];
+  //   }
+  //   delete values.dynamicColumnsField;
+  //   values.trade_date = moment(values?.trade_date).format("yyyy-MM-DD");
+  //   let payload = {
+  //     token: token,
+  //     values: filterEmptyValues(values),
+  //     // values: { ...values, image: imageBase },
+  //   };
+  //   if (image) {
+  //     const imageBase = await getBase64(image);
+  //     payload = {
+  //       ...payload,
+  //       values: {
+  //         ...payload.values,
+  //         image: imageBase,
+  //       },
+  //     };
+  //   }
 
-    setTradeList((prev) => [payload.values, ...prev]);
-    dispatch(tradeLogAdd(payload));
-    resetForm();
-  };
+  //   setTradeList((prev) => {
+  //     if (Array.isArray(prev)) {
+  //       return [payload.values, ...prev];
+  //     } else {
+  //       return [payload.values];
+  //     }
+  //   });
+  //   dispatch(tradeLogAdd(payload));
+  //   resetForm();
+  // };
 
   const handleEditSubmit = () => {
     const customId = [...new Set(allIds)];
@@ -343,42 +381,42 @@ function TradeLog() {
     setEdit(false);
   };
 
-  const handlesSubmit = () => {
-    if (formikRef?.current) {
-      // handleEditSubmitSingleTrade(formikRef?.current?.values);
-    }
-  };
+  // const handlesSubmit = () => {
+  //   if (formikRef?.current) {
+  //     // handleEditSubmitSingleTrade(formikRef?.current?.values);
+  //   }
+  // };
 
   function matchAndMapColumns(columnData, dynamicColumnData) {
-    const result = [];
+  const result = [];
 
-    // Check if columnData is an array
-    if (Array.isArray(columnData)) {
-      for (const columnItem of columnData) {
-        const matchingDynamicColumn = dynamicColumnData.find(
-          (dynamicColumnItem) => dynamicColumnItem.key === columnItem.id
-        );
+  // Check if columnData is an array
+  if (Array.isArray(columnData)) {
+    for (const columnItem of columnData) {
+      const matchingDynamicColumn = dynamicColumnData.find(
+        (dynamicColumnItem) => dynamicColumnItem.column_name === columnItem.column_name
+      );
 
-        // If there is a match, add to the result
-        if (matchingDynamicColumn) {
-          result.push({
-            name: columnItem.column_name,
-            value: matchingDynamicColumn.value,
-          });
-        } else {
-          // If no match, add an entry with an empty value
-          result.push({
-            name: columnItem.column_name,
-            value: [],
-          });
-        }
+      // If there is a match, add to the result
+      if (matchingDynamicColumn) {
+        result.push({
+          name: columnItem.column_name,
+          value: matchingDynamicColumn.value,
+        });
+      } else {
+        // If no match, add an entry with an empty value
+        result.push({
+          name: columnItem.column_name,
+          value: "-",
+        });
       }
-    } else {
-      console.error("Column data is not an array");
     }
-
-    return result;
+  } else {
+    console.error("Column data is not an array");
   }
+
+  return result;
+}
 
   const closePopUp = () => {
     setPopUp((_prev) => false);
@@ -408,7 +446,6 @@ function TradeLog() {
 
   const modifyExistingDynamicColumnData = (field, id, value) => {
     setAllIds((prev) => [...prev, id]);
-    console.log(field, id, value, "idadajdkajkaksmm");
     setTradeList((prev) => {
       const hold = JSON.parse(JSON.stringify(prev)).map((item, i) => {
         if (i === id) {
@@ -544,17 +581,25 @@ function TradeLog() {
     }
   };
 
-  const [questionnaireModal, setShowQuesitonireModal] = useState(false);
-  const [questionnaireId, setQuestionnaireId] = useState("");
-  const onCloseQuestionnaire = () => {
+  const [showQuestionnaire, setShowQuesitonireModal] = useState(false);
+  const [showQuestionnaireDQ, setShowQuesitonireDQ] = useState(false);
+  const [questionnaireANS, setQuestionnaireANS] = useState();
+  const closeQuestionnaire = () => {
     setShowQuesitonireModal(false);
-    setQuestionnaireId("");
+    setShowQuesitonireDQ(false);
   };
 
-  const onOpenQuestionnaire = (id) => {
-    setQuestionnaireId(id);
+  const openQuestionnaireDQ = (givenAns) => {
+    setShowQuesitonireDQ(true);
+    setQuestionnaireANS(givenAns);
+  };
+
+  const openQuestionnaire = () => {
     setShowQuesitonireModal(true);
-    dispatch(getTradeById({ id, token }));
+  };
+
+  const handleQuestionnaireSubmit = (answers, setFieldValue) => {
+    setFieldValue("questionnaire_answers", answers);
   };
 
   const updateColumnDetail = (newColumnData) => ({
@@ -604,56 +649,67 @@ function TradeLog() {
   const deleteColumn = async (columnId) => {
     try {
       // Dispatch deleteColumnData action to delete the column
-      await dispatch(
+      const response = await dispatch(
         deleteColumnData({
           token: token,
           columnId: columnId,
         })
       );
 
-      // Dispatch updateColumnDetail action to update the Redux store with the latest column details
-      dispatch(
-        updateColumnDetail(
-          columnDetail.filter((column) => column.id !== columnId)
-        )
-      );
-
-      // Fetch the updated column data again
-      dispatch(getColumnData(token));
+      if (response?.payload?.success) {
+        dispatch(getColumnData(token));
+        // Dispatch updateColumnDetail action to update the Redux store with the latest column details
+      } else {
+        console.error(
+          "Error deleting column:",
+          response?.payload?.message || "Unknown error"
+        );
+      }
     } catch (error) {
       console.error("Error deleting column:", error);
     }
   };
 
   const handleAddColumn = async () => {
-    try {
-      // Dispatch createColumnData action to add a new column
-      await dispatch(
+    if (formikRef.current) {
+      const { dynamicColumnsField } = formikRef.current.values;
+      if (dynamicColumnsField.trim()) {
+        setCol((prevCol) => [
+          ...prevCol,
+          {
+            token: token,
+            data: dynamicColumnsField,
+          },
+        ]);
+
+        createColumn();
+      }
+      dispatch(
         createColumnData({
           token: token,
-          data: values.dynamicColumnsField,
+          data: dynamicColumnsField,
         })
       );
 
-      // After adding a new column, fetch the updated column data
-      dispatch(getColumnData(token));
-
-      // Optionally, update local component state
-      // setCol([...col, { token: token, data: values.dynamicColumnsField }]);
-
-      // Clear the dynamicColumnsField input
-      setFieldValue("dynamicColumnsField", "");
-    } catch (error) {
-      console.error("Error adding column:", error);
+      formikRef.current.setFieldValue("dynamicColumnsField", "");
+      alert("New Column created");
     }
   };
 
   return (
     <>
-      {questionnaireModal && questionnaireId && (
-        <DailyQuestionnaire
-          closePopUp={onCloseQuestionnaire}
-          questionnaireId={questionnaireId}
+      {showQuestionnaireDQ && !edit && (
+        <DailyQA
+          onClose={closeQuestionnaire}
+          givenAnss={questionnaireANS}
+          isEdit={false}
+        />
+      )}
+      {showQuestionnaireDQ && edit && (
+        <DailyQA
+          onClose={closeQuestionnaire}
+          givenAnss={questionnaireANS}
+          isEdit={true}
         />
       )}
       {tradeList && tradeList?.length > 0 && !isLoading ? (
@@ -703,7 +759,6 @@ function TradeLog() {
                       borderRadius: "12px",
                       height: "40px",
                       textAlign: "center",
-                      // marginLeft:"20px"
                     }}
                   />
                   <ul>
@@ -761,1237 +816,7 @@ function TradeLog() {
                       {sortedTableHeading.map((header, _index) => (
                         <th key={header}>
                           {header}
-                          <span
-                            className="sort-arrow"
-                            onClick={() =>
-                              setSort((prev) => {
-                                if (
-                                  prev?.label === "" ||
-                                  prev?.label !== header
-                                ) {
-                                  setSort((prev) => ({
-                                    ...prev,
-                                    label: header,
-                                    sort: "ASC",
-                                  }));
-                                  sortDataBy(
-                                    tradeList,
-                                    tableHeadingObj[header]
-                                  );
-                                } else if (
-                                  prev?.label === header &&
-                                  prev?.label === "ASC"
-                                ) {
-                                  setSort((prev) => ({
-                                    ...prev,
-                                    label: header,
-                                    sort: "DESC",
-                                  }));
-                                  sortDataBy(
-                                    tradeList,
-                                    tableHeadingObj[header]
-                                  );
-                                } else if (
-                                  prev?.label === header &&
-                                  prev?.label === "DESC"
-                                ) {
-                                  setSort((prev) => ({
-                                    ...prev,
-                                    label: header,
-                                    sort: "ASC",
-                                  }));
-                                  sortDataBy(
-                                    tradeList,
-                                    tableHeadingObj[header]
-                                  );
-                                }
-                              })
-                            }
-                          >
-                            <img
-                              style={{ cursor: "pointer" }}
-                              src={
-                                sort?.label === header
-                                  ? sort?.sort === "ASC"
-                                    ? ArrowUP
-                                    : DownArrow
-                                  : DownArrow
-                              }
-                            />
-                          </span>
-                        </th>
-                      ))}
-                      {columnDetail?.length > 0 &&
-                        columnDetail?.map((header, index) => (
-                          <th key={index}>
-                            {header?.column_name}
-                            <button
-                              onClick={() => {
-                                deleteColumn(header?.id);
-                              }}
-                            >
-                              Delete Column
-                            </button>
-                          </th>
-                        ))}
-
-                      <th key={"addColumn"}>Dynamic Column</th>
-                      <th>Daily Questionnaire</th>
-                      <th key={"heads"}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <Formik
-                      initialValues={{
-                        asset_class: "",
-                        position_size: "",
-                        points_captured: "",
-                        trade_pnl: "",
-                        position: "",
-                        buy_sell: "",
-                        trade_remark: "",
-                        trade_karma: "",
-                        trade_date: "",
-                        holding_trade_type: "",
-                        trade_charges: "",
-                        trading_account: "",
-                        stop_loss: "",
-                        trade_target: "",
-                        trade_conviction: "",
-                        strategy_used: "",
-                        trade_risk: "",
-                        reason_for_trade: "",
-                        percentage_of_account_risked: "",
-                        image: "",
-                        trade_slippage: "",
-                        trade_penalties: "",
-                        net_roi: "",
-                        trade_customizable: "",
-                        opening_balance: "",
-                        trade_tags: "",
-                        comment: "",
-                        dynamicColumnsField: "",
-                        asset_class: "",
-                        // other fields...
-                        dynamicColumnsField: "",
-                        dynamicColumnNames: [], // initialize dynamicColumnNames
-                        // other fields...
-                        ...columnDetail?.reduce((acc, item) => {
-                          return {
-                            ...acc,
-                            [item.column_name]: "",
-                          };
-                        }, {}),
-                        dynamicColumn: [],
-                      }}
-                      validationSchema={tradeSchema}
-                      onSubmit={handleAddSubmit}
-                    >
-                      {({ values, setFieldValue, handleSubmit }) =>
-                        !edit && (
-                          <tr key={"first"} className="first">
-                            <td>
-                              <ReactDatePicker
-                                id="trade_date"
-                                name="trade_date"
-                                closeOnScroll={true}
-                                selected={startDate}
-                                onChange={(date) => {
-                                  setStartDate(date);
-                                  setFieldValue("trade_date", date); // Update the formik value
-                                }}
-                                dateFormat="yyyy-MM-dd"
-                              />
-                              <ErrorMessage name="trade_date" component="div" />
-                            </td>
-                            <td>
-                              <Field as="select" name="asset_class">
-                                <option>Select</option>
-                                <option value="Equity">Equity</option>
-                                <option value="Features">Features</option>
-                                <option value="Options">Options</option>
-                                <option value="Currency">Currency</option>
-                                <option value="Commodity">Commodity</option>
-                                <option value="Crypto">Crypto</option>
-                              </Field>
-                              <ErrorMessage
-                                name="asset_class"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="text" name="position" />
-                              <ErrorMessage name="position" component="div" />
-                            </td>
-                            <td>
-                              <Field as="select" name="buy_sell">
-                                <option>Select</option>
-                                <option value="Buy">Buy</option>
-                                <option value="Sell">Sell</option>
-                              </Field>
-                              <ErrorMessage name="buy_sell" component="div" />
-                            </td>
-                            <td>
-                              <Field type="number" name="position_size" />
-                              <ErrorMessage
-                                name="position_size"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="stop_loss" />
-                              <ErrorMessage name="stop_loss" component="div" />
-                            </td>
-                            <td>
-                              <Field type="number" name="trade_target" />
-                              <ErrorMessage
-                                name="trade_target"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="trade_pnl" />
-                              <ErrorMessage name="trade_pnl" component="div" />
-                            </td>
-                            <td>
-                              <Field type="number" name="points_captured" />
-                              <ErrorMessage
-                                name="points_captured"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="net_roi" />
-                              <ErrorMessage name="net_roi" component="div" />
-                            </td>
-                            <td>
-                              <Field as="select" name="strategy_used">
-                                <option>Select</option>
-                                {strategies?.length > 0 &&
-                                  strategies.map((el, index) => (
-                                    <option key={index}>
-                                      {el.strategies_name}
-                                    </option>
-                                  ))}
-                              </Field>
-                              <ErrorMessage
-                                name="strategy_used"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field as="select" name="holding_trade_type">
-                                <option>Select</option>
-                                <option value="Positional">Positional</option>
-                                <option value="Intraday">Intraday</option>
-                                <option value="Swing">Swing</option>
-                                <option value="Short Term">Short Term</option>
-                                <option value="Long Term">Long Term</option>
-                                <option value="Expiry">Expiry</option>
-                                <option value="BTST">BTST</option>
-                              </Field>
-                              <ErrorMessage
-                                name="holding_trade_type"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field as="select" name="trade_conviction">
-                                <option>Select</option>
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
-                              </Field>
-                              <ErrorMessage
-                                name="trade_conviction"
-                                component="div"
-                              />
-                            </td>
-
-                            <td>
-                              <input
-                                className="w-[50%]"
-                                type="number"
-                                onChange={(e) => {
-                                  setFieldValue(
-                                    "trade_risk",
-                                    `${e.target.value}:${
-                                      values?.trade_risk
-                                        ?.replace(/ /g, "")
-                                        .split(/:/g)[1] || 1
-                                    }`
-                                  );
-                                }}
-                                value={
-                                  values?.trade_risk
-                                    ?.replace(/ /g, "")
-                                    .split(/:/g)[0] || 1
-                                }
-                              />
-                              <span className="font-bold, mx-2 text-center text-2xl">
-                                :
-                              </span>
-                              <input
-                                className="w-[50%]"
-                                type="number"
-                                onChange={(e) => {
-                                  setFieldValue(
-                                    "trade_risk",
-                                    `${
-                                      values?.trade_risk
-                                        ?.replace(/ /g, "")
-                                        .split(/:/g)[0] || 1
-                                    }:${e.target.value}`
-                                  );
-                                }}
-                                value={
-                                  values?.trade_risk
-                                    ?.replace(/ /g, "")
-                                    .split(/:/g)[1] || 1
-                                }
-                              />
-                            </td>
-                            <td>
-                              <Field type="text" name="reason_for_trade" />
-                              <ErrorMessage
-                                name="reason_for_trade"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field as="select" name="trade_karma">
-                                <option>Select</option>
-                                <option value="Satisfied">Satisfied</option>
-                                <option value="Unsatisfied">Unsatisfied</option>
-                              </Field>
-                              <ErrorMessage
-                                name="trade_karma"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="text" name="comment" />
-                              <ErrorMessage name="comment" component="div" />
-                            </td>
-                            <td>
-                              <Field
-                                type="number"
-                                name="percentage_of_account_risked"
-                              />
-                              <ErrorMessage
-                                name="percentage_of_account_risked"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="trade_charges" />
-                              <ErrorMessage
-                                name="trade_charges"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="trade_slippage" />
-                              <ErrorMessage
-                                name="trade_slippage"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="trade_penalties" />
-                              <ErrorMessage
-                                name="trade_penalties"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field as="select" name="trading_account">
-                                <option>Select</option>
-                                {accountList.map((account) => (
-                                  <option key={account.account_Id}>
-                                    {account?.account_name}
-                                  </option>
-                                ))}
-                                <option value="Account A">Account A</option>
-                                <option value="Account B">Account B</option>
-                              </Field>
-                              <ErrorMessage
-                                name="trading_account"
-                                component="div"
-                              />
-                            </td>
-                            <td>
-                              <Field type="number" name="opening_balance" />
-                              <ErrorMessage
-                                name="opening_balance"
-                                component="div"
-                              />
-                            </td>
-                            <td className="special-col">
-                              <input
-                                type="file"
-                                name="image"
-                                id="image"
-                                onChange={(e) => setImage(e.target.files[0])}
-                              />
-                              {showPrev && (
-                                <div className="img-preview">
-                                  {image && (
-                                    <img src={URL.createObjectURL(image)} />
-                                  )}
-                                </div>
-                              )}
-                              <button
-                                onClick={() => setShowPrev((prev) => !prev)}
-                              >
-                                Preview
-                              </button>
-                              <ErrorMessage name="image" component="div" />
-                            </td>
-
-                            {columnDetail?.length > 0 &&
-                              columnDetail?.map(
-                                (items) =>
-                                  items?.column_name && (
-                                    <td>
-                                      <Field
-                                        type="text"
-                                        name={`${items?.column_name}`}
-                                      />
-                                      <ErrorMessage
-                                        name={`${items?.column_name}`}
-                                        component="div"
-                                      />
-                                    </td>
-                                  )
-                              )}
-
-                            <td>
-                              <Field
-                                type="text"
-                                name="dynamicColumnsField"
-                                value={values.dynamicColumnsField}
-                                onChange={(e) =>
-                                  setFieldValue(
-                                    "dynamicColumnsField",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={() => {
-                                  {
-                                    createColumn();
-                                  }
-
-                                  dispatch(
-                                    createColumnData({
-                                      token: token,
-                                      data: values.dynamicColumnsField,
-                                    })
-                                  );
-
-                                  setCol([
-                                    ...col,
-                                    {
-                                      token: token,
-                                      data: values.dynamicColumnsField,
-                                    },
-                                  ]);
-                                  setFieldValue("dynamicColumnsField", "");
-                                }}
-                              >
-                                Add Column1
-                              </button>
-                            </td>
-
-                            <td>
-                              <button
-                                type="button"
-                                className="submit-btn"
-                                onClick={() => {
-                                  handleSaveSubmit(values, token);
-                                }}
-                              >
-                                Save
-                              </button>
-                            </td>
-                          </tr>
-                        )
-                      }
-                    </Formik>
-                    {tradeList?.length > 0 &&
-                      tradeList?.map((item, index) => {
-                        return (
-                          <Formik
-                            key={index}
-                            initialValues={{
-                              asset_class: item?.asset_class || "",
-                              position_size: item?.position_size || "",
-                              points_captured: item?.points_captured || "",
-                              trade_pnl: item?.trade_pnl || "",
-                              position: item?.position || "",
-                              buy_sell: item?.buy_sell || "",
-                              trade_remark: item?.trade_remark || "",
-                              trade_karma: item?.trade_karma || "",
-                              trade_date1: new Date(item?.trade_date) || "",
-                              holding_trade_type:
-                                item?.holding_trade_type || "",
-                              trade_charges: item?.trade_charges || "",
-                              trading_account: item?.trading_account || "",
-                              stop_loss: item?.stop_loss || "",
-                              trade_target: item?.trade_target || "",
-                              trade_conviction: item?.trade_conviction || "",
-                              strategy_used: item?.strategy_used || "",
-                              trade_risk: item?.trade_risk || "",
-                              reason_for_trade: item?.reason_for_trade || "",
-                              percentage_of_account_risked:
-                                item?.percentage_of_account_risked || "",
-                              image: item?.image || "",
-                              trade_slippage: item?.trade_slippage || "",
-                              trade_penalties: item?.trade_penalties || "",
-                              net_roi: item?.net_roi || "",
-                              trade_customizable:
-                                item?.trade_customizable || "",
-                              opening_balance: item?.opening_balance || "",
-                              trade_tags: item?.trade_tags || "",
-                              comment: item?.comment || "",
-                              dynamicColumn:
-                                item?.dynamicColumn.length > 0
-                                  ? matchAndMapColumns(
-                                      columnDetail,
-                                      item?.dynamicColumn
-                                    )
-                                  : [],
-                            }}
-                            validationSchema={tradeSchema}
-                            innerRef={formikRef}
-                            onSubmit={handlesSubmit}
-                          >
-                            {({ values, setFieldValue }) => {
-                              return (
-                                <tr key={index} className={index}>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <ReactDatePicker
-                                        id="trade_date1"
-                                        name="trade_date1"
-                                        closeOnScroll={true}
-                                        selected={
-                                          values?.trade_date1 || startDate1
-                                        }
-                                        onChange={(date) => {
-                                          setStartDate1(date);
-                                          setFieldValue("trade_date", date);
-                                          setFieldValue("trade_date1", date);
-                                          modifyExistingData(
-                                            "trade_date1",
-                                            index,
-                                            date
-                                          );
-                                        }}
-                                        dateFormat="yyyy-MM-dd"
-                                      />
-                                    ) : (
-                                      new Date(
-                                        item?.trade_date
-                                      ).toLocaleDateString("en-CA")
-                                    )}
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="asset_class"
-                                      id="asset_class"
-                                      value={item?.asset_class}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                      disabled={!edit}
-                                    >
-                                      <option value="Equity">Equity</option>
-                                      <option value="Features">Features</option>
-                                      <option value="Options">Options</option>
-                                      <option value="Currency">Currency</option>
-                                      <option value="Commodity">
-                                        Commodity
-                                      </option>
-                                      <option value="Crypto">Crypto</option>
-                                    </Field>
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="position"
-                                          onChange={(e) => {
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            );
-                                          }}
-                                          value={item?.position}
-                                        />
-                                        <ErrorMessage
-                                          name="position"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.position
-                                    )}
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="buy_sell"
-                                      disabled={!edit}
-                                      value={item?.buy_sell}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                    >
-                                      <option>Select</option>
-                                      <option value="Buy">Buy</option>
-                                      <option value="Sell">Sell</option>
-                                    </Field>
-                                    <ErrorMessage
-                                      name="buy_sell"
-                                      component="div"
-                                    />
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="number"
-                                          name="position_size"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.valueAsNumber
-                                            )
-                                          }
-                                          value={item?.position_size}
-                                        />
-                                        <ErrorMessage
-                                          name="position_size"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.position_size
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="number"
-                                          name="stop_loss"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.valueAsNumber
-                                            )
-                                          }
-                                          value={item?.stop_loss}
-                                        />
-                                        <ErrorMessage
-                                          name="stop_loss"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.stop_loss
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="trade_target"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.trade_target}
-                                        />
-                                        <ErrorMessage
-                                          name="trade_target"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.trade_target
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="number"
-                                          name="trade_pnl"
-                                          onChange={(e) => {
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.valueAsNumber
-                                            );
-                                          }}
-                                          value={item?.trade_pnl}
-                                        />
-                                        <ErrorMessage
-                                          name="trade_pnl"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      ` ₹ ${item?.trade_pnl}`
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="points_captured"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.points_captured}
-                                        />
-                                        <ErrorMessage
-                                          name="points_captured"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.points_captured
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="net_roi"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.net_roi}
-                                        />
-                                        <ErrorMessage
-                                          name="net_roi"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.net_roi
-                                    )}
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="strategy_used"
-                                      disabled={!edit}
-                                      value={item?.strategy_used}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                    >
-                                      <option>Select</option>
-                                      <option value="Strategy 1">
-                                        Strategy 1
-                                      </option>
-                                      <option value="Strategy 2">
-                                        Strategy 2
-                                      </option>
-                                    </Field>
-                                    <ErrorMessage
-                                      name="strategy_used"
-                                      component="div"
-                                    />
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="holding_trade_type"
-                                      disabled={!edit}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                      value={item?.holding_trade_type}
-                                    >
-                                      <option>Select</option>
-                                      <option value="Positional">
-                                        Positional
-                                      </option>
-                                      <option value="Intraday">Intraday</option>
-                                      <option value="Swing">Swing</option>
-                                      <option value="Short Term">
-                                        Short Term
-                                      </option>
-                                      <option value="Long Term">
-                                        Long Term
-                                      </option>
-                                      <option value="Expiry">Expiry</option>
-                                      <option value="BTST">BTST</option>
-                                    </Field>
-                                    <ErrorMessage
-                                      name="holding_trade_type"
-                                      component="div"
-                                    />
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="trade_conviction"
-                                      disabled={!edit}
-                                      value={item?.trade_conviction}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                    >
-                                      <option>Select</option>
-                                      <option value="Low">Low</option>
-                                      <option value="Medium">Medium</option>
-                                      <option value="High">High</option>
-                                    </Field>
-                                    <ErrorMessage
-                                      name="trade_conviction"
-                                      component="div"
-                                    />
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <input
-                                          className="w-[50%]"
-                                          type="number"
-                                          onChange={(e) => {
-                                            modifyExistingData(
-                                              "trade_risk",
-                                              index,
-                                              `${e.target.value}:${
-                                                item?.trade_risk
-                                                  ?.replace(/ /g, "")
-                                                  .split(/:/g)[1] || 1
-                                              }`
-                                            );
-                                          }}
-                                          value={
-                                            item?.trade_risk
-                                              ?.replace(/ /g, "")
-                                              .split(/:/g)[0] || 1
-                                          }
-                                        />
-                                        <span className="font-bold, mx-2 text-center text-2xl">
-                                          :
-                                        </span>
-                                        <input
-                                          className="w-[50%]"
-                                          type="number"
-                                          onChange={(e) => {
-                                            modifyExistingData(
-                                              "trade_risk",
-                                              index,
-                                              `${
-                                                item?.trade_risk
-                                                  ?.replace(/ /g, "")
-                                                  .split(/:/g)[0] || 1
-                                              }:${e.target.value}`
-                                            );
-                                          }}
-                                          value={
-                                            item?.trade_risk
-                                              ?.replace(/ /g, "")
-                                              .split(/:/g)[1] || 1
-                                          }
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.trade_risk
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="reason_for_trade"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.reason_for_trade}
-                                        />
-                                        <ErrorMessage
-                                          name="reason_for_trade"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.reason_for_trade
-                                    )}
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="trade_karma"
-                                      disabled={!edit}
-                                      value={item?.trade_karma}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                    >
-                                      <option>Select</option>
-                                      <option value="Satisfied">
-                                        Satisfied
-                                      </option>
-                                      <option value="Unsatisfied">
-                                        Unsatisfied
-                                      </option>
-                                    </Field>
-                                    <ErrorMessage
-                                      name="trade_karma"
-                                      component="div"
-                                    />
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="comment"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.comment}
-                                        />
-                                        <ErrorMessage
-                                          name="comment"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.comment
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="percentage_of_account_risked"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={
-                                            item?.percentage_of_account_risked
-                                          }
-                                        />
-                                        <ErrorMessage
-                                          name="percentage_of_account_risked"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.percentage_of_account_risked
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="trade_charges"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.trade_charges}
-                                        />
-                                        <ErrorMessage
-                                          name="trade_charges"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      ` ₹ ${item?.trade_charges}`
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="trade_slippage"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.trade_slippage}
-                                        />
-                                        <ErrorMessage
-                                          name="trade_slippage"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.trade_slippage
-                                    )}
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="trade_penalties"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={item?.trade_penalties}
-                                        />
-                                        <ErrorMessage
-                                          name="trade_penalties"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      ` ₹ ${item?.trade_penalties}`
-                                    )}
-                                  </td>
-                                  <td>
-                                    <Field
-                                      as="select"
-                                      name="trading_account"
-                                      disabled={!edit}
-                                      value={item?.trading_account}
-                                      onChange={(e) =>
-                                        modifyExistingData(
-                                          e.target.name,
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                    >
-                                      <option>Select</option>
-                                      <option value="Account A">
-                                        Account A
-                                      </option>
-                                      <option value="Account B">
-                                        Account B
-                                      </option>
-                                    </Field>
-                                    <ErrorMessage
-                                      name="trading_account"
-                                      component="div"
-                                    />
-                                  </td>
-                                  <td>
-                                    {id === item?.id || edit ? (
-                                      <>
-                                        <Field
-                                          type="text"
-                                          name="opening_balance"
-                                          onChange={(e) =>
-                                            modifyExistingData(
-                                              e.target.name,
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          value={
-                                            item?.opening_balance &&
-                                            item?.opening_balance
-                                          }
-                                        />
-                                        <ErrorMessage
-                                          name="opening_balance"
-                                          component="div"
-                                        />
-                                      </>
-                                    ) : (
-                                      item?.opening_balance &&
-                                      parseFloat(item?.opening_balance).toFixed(
-                                        2
-                                      )
-                                    )}
-                                  </td>
-                                  <td>
-                                    <img
-                                      src={item?.image}
-                                      style={{
-                                        width: "100%",
-                                        display: "flex",
-                                        margin: "auto",
-                                      }}
-                                    />
-                                  </td>
-
-                                  {item?.dynamicColumn?.length > 0 &&
-                                    matchAndMapColumns(
-                                      columnDetail,
-                                      item?.dynamicColumn
-                                    ).map((items) => (
-                                      <td>
-                                        {id === item?.id || edit ? (
-                                          <>
-                                            <Field
-                                              type="text"
-                                              name={`${items?.name}`}
-                                              onChange={(e) => {
-                                                modifyExistingDynamicColumnData(
-                                                  e.target.name,
-                                                  index,
-                                                  e.target.value
-                                                );
-                                              }}
-                                              value={
-                                                matchAndMapColumns(
-                                                  columnDetail,
-                                                  item?.dynamicColumn
-                                                ).find(
-                                                  (el) =>
-                                                    el?.name === items?.name
-                                                )?.value
-                                              }
-                                            />
-                                            <ErrorMessage
-                                              name={`${items?.name}`}
-                                              component="div"
-                                            />
-                                          </>
-                                        ) : (
-                                          items?.value
-                                        )}
-                                      </td>
-                                    ))}
-                                  <td> </td>
-                                  <td>
-                                    <button
-                                      onClick={() => {
-                                        onOpenQuestionnaire(item?.id);
-                                      }}
-                                    >
-                                      Fill up DailyQuestionnaire
-                                    </button>
-                                  </td>
-                                </tr>
-                              );
-                            }}
-                          </Formik>
-                        );
-                      })}
-                  </tbody>
-                </Table>
-              </div>
-            </div>
-          </div>
-          <Pagination
-            pageDetail={pageDetail}
-            reduxData={reduxData}
-            handlePrevious={handlePrevious}
-            handleNext={handleNext}
-            handlePageClick={handlePageClick}
-          />
-        </div>
-      ) : isLoading ? (
-        <Loader />
-      ) : reduxData.data?.length === 0 ? (
-        <>
-          {popUp && (
-            <div ref={ref}>
-              <PopUpFilter
-                closePopUp={closePopUp}
-                setTradeList={setTradeList}
-              />
-            </div>
-          )}
-          <div className="customFilterButton">
-            <ul>
-              <li onClick={togglePopUp}>
-                Filters{" "}
-                <span>
-                  <img src={FilterIcon} alt="main filter" />
-                </span>
-              </li>
-            </ul>
-          </div>
-          <div className="main-content demo-b">
-            <div className="tradelog-tbl">
-              <div className="table_wrapper">
-                <div className="table-responsive">
-                  <Table cellSpacing="0" cellPadding="0">
-                    <thead>
-                      <tr>
-                        {tableHeading.map((header, _index) => (
-                          <th key={header}>
-                            {header}
+                          {sortable_TableHeadings.includes(header) && (
                             <span
                               className="sort-arrow"
                               onClick={() =>
@@ -2050,27 +875,48 @@ function TradeLog() {
                                 }
                               />
                             </span>
-                          </th>
-                        ))}
-                        {columnDetail?.length > 0 &&
-                          columnDetail?.map((header, index) => (
-                            <th key={index}>
-                              {header?.column_name}
+                          )}
+                        </th>
+                      ))}
+
+                      <th>Daily Questionnaire</th>
+
+                      {columnDetail?.length > 0 &&
+                        columnDetail?.map((header, index) => (
+                          <th key={index}>
+                            {header?.column_name}{" "}
+                            {edit && (
                               <button
+                                className="add_button"
                                 onClick={() => {
                                   deleteColumn(header?.id);
                                 }}
                               >
-                                Delete
+                                Delete Column
                               </button>
-                            </th>
-                          ))}
+                            )}
+                          </th>
+                        ))}
 
-                        <th key={"addColumn"}>Dynamic Column</th>
-                        <th key={"heads"}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                      <th>
+                        {!edit && (
+                          <button
+                            className="add_button"
+                            type="button"
+                            onClick={() => {
+                              handleAddColumn();
+                            }}
+                          >
+                            Add Column
+                          </button>
+                        )}
+                      </th>
+
+                      {!edit && <th key={"heads"}>Actions</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <>
                       <Formik
                         initialValues={{
                           asset_class: "",
@@ -2102,13 +948,17 @@ function TradeLog() {
                           comment: "",
                           dynamicColumnsField: "",
                           ...columnDetail?.reduce((acc, item) => {
-                            acc[item?.column_name] = "";
-                            return acc;
+                            return {
+                              ...acc,
+                              [item.column_name]: "",
+                            };
                           }, {}),
                           dynamicColumn: [],
+                          questionnaire_answers: Array(8).fill(""),
                         }}
                         validationSchema={tradeSchema}
-                        onSubmit={handleAddSubmit}
+                        innerRef={(instance) => (formikRef.current = instance)}
+                        // onSubmit={handleAddSubmit}
                       >
                         {({ values, setFieldValue }) =>
                           !edit && (
@@ -2200,8 +1050,8 @@ function TradeLog() {
                                 <Field as="select" name="strategy_used">
                                   <option>Select</option>
                                   {strategies?.length > 0 &&
-                                    strategies.map((el) => (
-                                      <option key={el.strategies_name}>
+                                    strategies.map((el, index) => (
+                                      <option key={index}>
                                         {el.strategies_name}
                                       </option>
                                     ))}
@@ -2267,7 +1117,6 @@ function TradeLog() {
                                   className="w-[50%]"
                                   type="number"
                                   onChange={(e) => {
-                                    console.log(e.target.value);
                                     setFieldValue(
                                       "trade_risk",
                                       `${
@@ -2347,8 +1196,6 @@ function TradeLog() {
                                       {account?.account_name}
                                     </option>
                                   ))}
-                                  <option value="Account A">Account A</option>
-                                  <option value="Account B">Account B</option>
                                 </Field>
                                 <ErrorMessage
                                   name="trading_account"
@@ -2376,30 +1223,1393 @@ function TradeLog() {
                                     )}
                                   </div>
                                 )}
-                                <button
+
+                                <img
+                                  src={eye}
+                                  alt="Preview"
+                                  height={21}
+                                  className="prev_eye"
+                                  width={21}
                                   onClick={() => setShowPrev((prev) => !prev)}
-                                >
-                                  Preview
-                                </button>
+                                />
                                 <ErrorMessage name="image" component="div" />
                               </td>
+
+                              <td>
+                                <button
+                                  onClick={openQuestionnaire}
+                                  type="button"
+                                  className="fill_button"
+                                >
+                                  Fill up
+                                </button>
+                                {showQuestionnaire && !edit && (
+                                  <DailyQuestionnaire
+                                    onClose={closeQuestionnaire}
+                                    onSubmitAnswers={(answers) =>
+                                      handleQuestionnaireSubmit(
+                                        answers,
+                                        setFieldValue
+                                      )
+                                    }
+                                  />
+                                )}
+                              </td>
+
                               {columnDetail?.length > 0 &&
-                                columnDetail?.map((items) => (
-                                  <td>
-                                    <Field
-                                      type="text"
-                                      name={`${items?.column_name}`}
-                                    />
-                                    <ErrorMessage
-                                      name={`${items?.column_name}`}
-                                      component="div"
-                                    />
-                                  </td>
-                                ))}
+                                columnDetail?.map(
+                                  (items) =>
+                                    items?.column_name && (
+                                      <td>
+                                        <Field
+                                          type="text"
+                                          name={`${items?.column_name}`}
+                                        />
+                                        <ErrorMessage
+                                          name={`${items?.column_name}`}
+                                          component="div"
+                                        />
+                                      </td>
+                                    )
+                                )}
+
+                              <td>
+                                <Field
+                                  type="text"
+                                  name="dynamicColumnsField"
+                                  value={values.dynamicColumnsField}
+                                  onChange={(e) =>
+                                    setFieldValue(
+                                      "dynamicColumnsField",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </td>
+
+                              <td>
+                                <button
+                                  type="button"
+                                  className="submit-btn"
+                                  onClick={() => {
+                                    handleSaveSubmit(values, token);
+                                  }}
+                                >
+                                  Save
+                                </button>
+                              </td>
                             </tr>
                           )
                         }
                       </Formik>
+                    </>
+
+                    {tradeList?.length > 0 &&
+                      tradeList?.map((item, index) => {
+                        return (
+                          <>
+                            <Formik
+                              key={index}
+                              initialValues={{
+                                asset_class: item?.asset_class || "",
+                                position_size: item?.position_size || "",
+                                points_captured: item?.points_captured || "",
+                                trade_pnl: item?.trade_pnl || "",
+                                position: item?.position || "",
+                                buy_sell: item?.buy_sell || "",
+                                trade_remark: item?.trade_remark || "",
+                                trade_karma: item?.trade_karma || "",
+                                trade_date1: new Date(item?.trade_date) || "",
+                                holding_trade_type:
+                                  item?.holding_trade_type || "",
+                                trade_charges: item?.trade_charges || "",
+                                trading_account: item?.trading_account || "",
+                                stop_loss: item?.stop_loss || "",
+                                trade_target: item?.trade_target || "",
+                                trade_conviction: item?.trade_conviction || "",
+                                strategy_used: item?.strategy_used || "",
+                                trade_risk: item?.trade_risk || "",
+                                reason_for_trade: item?.reason_for_trade || "",
+                                percentage_of_account_risked:
+                                  item?.percentage_of_account_risked || "",
+                                image: item?.image || "",
+                                trade_slippage: item?.trade_slippage || "",
+                                trade_penalties: item?.trade_penalties || "",
+                                net_roi: item?.net_roi || "",
+                                trade_customizable:
+                                  item?.trade_customizable || "",
+                                opening_balance: item?.opening_balance || "",
+                                trade_tags: item?.trade_tags || "",
+                                comment: item?.comment || "",
+                                questionnaire_answers:
+                                  item?.questionnaire_answers || [],
+                                dynamicColumn:
+                                  item?.dynamicColumn.length > 0
+                                    ? matchAndMapColumns(
+                                        columnDetail,
+                                        item?.dynamicColumn
+                                      )
+                                    : [],
+                              }}
+                              validationSchema={tradeSchema}
+                              innerRef={formikRef}
+                              // onSubmit={handlesSubmit}
+                            >
+                              {({ values, setFieldValue }) => {
+                                return (
+                                  <tr key={index} className={index}>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <ReactDatePicker
+                                          id="trade_date1"
+                                          name="trade_date1"
+                                          closeOnScroll={true}
+                                          selected={
+                                            values?.trade_date1 || startDate1
+                                          }
+                                          onChange={(date) => {
+                                            setStartDate1(date);
+                                            setFieldValue("trade_date", date);
+                                            setFieldValue("trade_date1", date);
+                                            modifyExistingData(
+                                              "trade_date1",
+                                              index,
+                                              date
+                                            );
+                                          }}
+                                          dateFormat="yyyy-MM-dd"
+                                        />
+                                      ) : (
+                                        new Date(
+                                          item?.trade_date
+                                        ).toLocaleDateString("en-CA")
+                                      )}
+                                    </td>
+                                    <td>
+                                      <Field
+                                        as="select"
+                                        name="asset_class"
+                                        id="asset_class"
+                                        value={item?.asset_class}
+                                        onChange={(e) =>
+                                          modifyExistingData(
+                                            e.target.name,
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                        disabled={!edit}
+                                      >
+                                        <option value="Equity">Equity</option>
+                                        <option value="Features">
+                                          Features
+                                        </option>
+                                        <option value="Options">Options</option>
+                                        <option value="Currency">
+                                          Currency
+                                        </option>
+                                        <option value="Commodity">
+                                          Commodity
+                                        </option>
+                                        <option value="Crypto">Crypto</option>
+                                      </Field>
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="position"
+                                            onChange={(e) => {
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              );
+                                            }}
+                                            value={item?.position}
+                                          />
+                                          <ErrorMessage
+                                            name="position"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.position
+                                      )}
+                                    </td>
+                                    <td>
+                                      <Field
+                                        as="select"
+                                        name="buy_sell"
+                                        disabled={!edit}
+                                        value={item?.buy_sell}
+                                        onChange={(e) =>
+                                          modifyExistingData(
+                                            e.target.name,
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                      >
+                                        <option>Select</option>
+                                        <option value="Buy">Buy</option>
+                                        <option value="Sell">Sell</option>
+                                      </Field>
+                                      <ErrorMessage
+                                        name="buy_sell"
+                                        component="div"
+                                      />
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="number"
+                                            name="position_size"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.valueAsNumber
+                                              )
+                                            }
+                                            value={item?.position_size}
+                                          />
+                                          <ErrorMessage
+                                            name="position_size"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.position_size
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="number"
+                                            name="stop_loss"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.valueAsNumber
+                                              )
+                                            }
+                                            value={item?.stop_loss}
+                                          />
+                                          <ErrorMessage
+                                            name="stop_loss"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.stop_loss
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="trade_target"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.trade_target}
+                                          />
+                                          <ErrorMessage
+                                            name="trade_target"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.trade_target
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="number"
+                                            name="trade_pnl"
+                                            onChange={(e) => {
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.valueAsNumber
+                                              );
+                                            }}
+                                            value={item?.trade_pnl}
+                                          />
+                                          <ErrorMessage
+                                            name="trade_pnl"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        ` ₹ ${item?.trade_pnl}`
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="points_captured"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.points_captured}
+                                          />
+                                          <ErrorMessage
+                                            name="points_captured"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.points_captured
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="net_roi"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.net_roi}
+                                          />
+                                          <ErrorMessage
+                                            name="net_roi"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.net_roi
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            as="select"
+                                            name="strategy_used"
+                                            disabled={!edit}
+                                            value={item?.strategy_used}
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                          >
+                                            <option>Select</option>
+                                            {strategies?.length > 0 &&
+                                              strategies.map((el, index) => (
+                                                <option key={index}>
+                                                  {el.strategies_name}
+                                                </option>
+                                              ))}
+                                          </Field>
+                                          <ErrorMessage
+                                            name="strategy_used"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.strategy_used
+                                      )}
+                                    </td>
+                                    <td>
+                                      <Field
+                                        as="select"
+                                        name="holding_trade_type"
+                                        disabled={!edit}
+                                        onChange={(e) =>
+                                          modifyExistingData(
+                                            e.target.name,
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                        value={item?.holding_trade_type}
+                                      >
+                                        <option>Select</option>
+                                        <option value="Positional">
+                                          Positional
+                                        </option>
+                                        <option value="Intraday">
+                                          Intraday
+                                        </option>
+                                        <option value="Swing">Swing</option>
+                                        <option value="Short Term">
+                                          Short Term
+                                        </option>
+                                        <option value="Long Term">
+                                          Long Term
+                                        </option>
+                                        <option value="Expiry">Expiry</option>
+                                        <option value="BTST">BTST</option>
+                                      </Field>
+                                      <ErrorMessage
+                                        name="holding_trade_type"
+                                        component="div"
+                                      />
+                                    </td>
+                                    <td>
+                                      <Field
+                                        as="select"
+                                        name="trade_conviction"
+                                        disabled={!edit}
+                                        value={item?.trade_conviction}
+                                        onChange={(e) =>
+                                          modifyExistingData(
+                                            e.target.name,
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                      >
+                                        <option>Select</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                      </Field>
+                                      <ErrorMessage
+                                        name="trade_conviction"
+                                        component="div"
+                                      />
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <input
+                                            className="w-[50%]"
+                                            type="number"
+                                            onChange={(e) => {
+                                              modifyExistingData(
+                                                "trade_risk",
+                                                index,
+                                                `${e.target.value}:${
+                                                  item?.trade_risk
+                                                    ?.replace(/ /g, "")
+                                                    .split(/:/g)[1] || 1
+                                                }`
+                                              );
+                                            }}
+                                            value={
+                                              item?.trade_risk
+                                                ?.replace(/ /g, "")
+                                                .split(/:/g)[0] || 1
+                                            }
+                                          />
+                                          <span className="font-bold, mx-2 text-center text-2xl">
+                                            :
+                                          </span>
+                                          <input
+                                            className="w-[50%]"
+                                            type="number"
+                                            onChange={(e) => {
+                                              modifyExistingData(
+                                                "trade_risk",
+                                                index,
+                                                `${
+                                                  item?.trade_risk
+                                                    ?.replace(/ /g, "")
+                                                    .split(/:/g)[0] || 1
+                                                }:${e.target.value}`
+                                              );
+                                            }}
+                                            value={
+                                              item?.trade_risk
+                                                ?.replace(/ /g, "")
+                                                .split(/:/g)[1] || 1
+                                            }
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.trade_risk
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="reason_for_trade"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.reason_for_trade}
+                                          />
+                                          <ErrorMessage
+                                            name="reason_for_trade"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.reason_for_trade
+                                      )}
+                                    </td>
+                                    <td>
+                                      <Field
+                                        as="select"
+                                        name="trade_karma"
+                                        disabled={!edit}
+                                        value={item?.trade_karma}
+                                        onChange={(e) =>
+                                          modifyExistingData(
+                                            e.target.name,
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                      >
+                                        <option>Select</option>
+                                        <option value="Satisfied">
+                                          Satisfied
+                                        </option>
+                                        <option value="Unsatisfied">
+                                          Unsatisfied
+                                        </option>
+                                      </Field>
+                                      <ErrorMessage
+                                        name="trade_karma"
+                                        component="div"
+                                      />
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="comment"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.comment}
+                                          />
+                                          <ErrorMessage
+                                            name="comment"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.comment
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="percentage_of_account_risked"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={
+                                              item?.percentage_of_account_risked
+                                            }
+                                          />
+                                          <ErrorMessage
+                                            name="percentage_of_account_risked"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.percentage_of_account_risked
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="trade_charges"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.trade_charges}
+                                          />
+                                          <ErrorMessage
+                                            name="trade_charges"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        ` ₹ ${item?.trade_charges}`
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="trade_slippage"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.trade_slippage}
+                                          />
+                                          <ErrorMessage
+                                            name="trade_slippage"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.trade_slippage
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="trade_penalties"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={item?.trade_penalties}
+                                          />
+                                          <ErrorMessage
+                                            name="trade_penalties"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        ` ₹ ${item?.trade_penalties}`
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            as="select"
+                                            name="trading_account"
+                                            disabled={!edit}
+                                            value={item?.trading_account}
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                          >
+                                            <option>Select</option>
+                                            {accountList.map((account) => (
+                                              <option key={account.account_Id}>
+                                                {account?.account_name}
+                                              </option>
+                                            ))}
+                                          </Field>
+                                          <ErrorMessage
+                                            name="trading_account"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.trading_account
+                                      )}
+                                    </td>
+                                    <td>
+                                      {id === item?.id || edit ? (
+                                        <>
+                                          <Field
+                                            type="text"
+                                            name="opening_balance"
+                                            onChange={(e) =>
+                                              modifyExistingData(
+                                                e.target.name,
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            value={
+                                              item?.opening_balance &&
+                                              item?.opening_balance
+                                            }
+                                          />
+                                          <ErrorMessage
+                                            name="opening_balance"
+                                            component="div"
+                                          />
+                                        </>
+                                      ) : (
+                                        item?.opening_balance &&
+                                        parseFloat(
+                                          item?.opening_balance
+                                        ).toFixed(2)
+                                      )}
+                                    </td>
+                                    <td>
+                                      <img
+                                        src={item?.image}
+                                        style={{
+                                          width: "100%",
+                                          display: "flex",
+                                          margin: "auto",
+                                        }}
+                                      />
+                                    </td>
+                                    <td>
+                                      <button
+                                        style={{
+                                          backgroundColor: "transparent",
+                                          border: "none",
+                                        }}
+                                        onClick={() => {
+                                          openQuestionnaireDQ(
+                                            item?.questionnaire_answers
+                                          );
+                                        }}
+                                        type="button"
+                                      >
+                                        <img
+                                          src={edit ? EditIcon : eye}
+                                          alt={edit ? "Edit" : "View"}
+                                          height={21}
+                                          width={21}
+                                        />
+                                      </button>
+                                    </td>
+
+                                    <>
+                                      {item?.dynamicColumn?.length > 0 &&
+                                        matchAndMapColumns(
+                                          columnDetail,
+                                          item?.dynamicColumn
+                                        ).map((items) => (
+                                          <td>
+                                            {id === item?.id || edit ? (
+                                              <>
+                                                <Field
+                                                  type="text"
+                                                  name={`${items?.name}`}
+                                                  onChange={(e) => {
+                                                    modifyExistingDynamicColumnData(
+                                                      e.target.name,
+                                                      index,
+                                                      e.target.value
+                                                    );
+                                                  }}
+                                                  value={
+                                                    matchAndMapColumns(
+                                                      columnDetail,
+                                                      item?.dynamicColumn
+                                                    ).find(
+                                                      (el) =>
+                                                        el?.name === items?.name
+                                                    )?.value
+                                                  }
+                                                />
+                                                <ErrorMessage
+                                                  name={`${items?.name}`}
+                                                  component="div"
+                                                />
+                                              </>
+                                            ) : (
+                                              items?.value
+                                            )}
+                                          </td>
+                                        ))}
+                                    </>
+                                  </tr>
+                                );
+                              }}
+                            </Formik>
+                          </>
+                        );
+                      })}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+          </div>
+          <Pagination
+            pageDetail={pageDetail}
+            reduxData={reduxData}
+            handlePrevious={handlePrevious}
+            handleNext={handleNext}
+            handlePageClick={handlePageClick}
+          />
+        </div>
+      ) : isLoading ? (
+        <Loader />
+      ) : reduxData.data?.length === 0 ? (
+        <>
+          {popUp && (
+            <div ref={ref}>
+              <PopUpFilter
+                closePopUp={closePopUp}
+                setTradeList={setTradeList}
+              />
+            </div>
+          )}
+          <div className="customFilterButton">
+            <ul>
+              <li onClick={togglePopUp}>
+                Filters{" "}
+                <span>
+                  <img src={FilterIcon} alt="main filter" />
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div className="main-content demo-b">
+            <div className="tradelog-tbl">
+              <div className="table_wrapper">
+                <div className="table-responsive">
+                  <Table cellSpacing="0" cellPadding="0">
+                    <thead>
+                      <tr>
+                        {sortedTableHeading.map((header, _index) => (
+                          <th key={header}>
+                            {header}
+                            {sortable_TableHeadings.includes(header) && (
+                              <span
+                                className="sort-arrow"
+                                onClick={() =>
+                                  setSort((prev) => {
+                                    if (
+                                      prev?.label === "" ||
+                                      prev?.label !== header
+                                    ) {
+                                      setSort((prev) => ({
+                                        ...prev,
+                                        label: header,
+                                        sort: "ASC",
+                                      }));
+                                      sortDataBy(
+                                        tradeList,
+                                        tableHeadingObj[header]
+                                      );
+                                    } else if (
+                                      prev?.label === header &&
+                                      prev?.label === "ASC"
+                                    ) {
+                                      setSort((prev) => ({
+                                        ...prev,
+                                        label: header,
+                                        sort: "DESC",
+                                      }));
+                                      sortDataBy(
+                                        tradeList,
+                                        tableHeadingObj[header]
+                                      );
+                                    } else if (
+                                      prev?.label === header &&
+                                      prev?.label === "DESC"
+                                    ) {
+                                      setSort((prev) => ({
+                                        ...prev,
+                                        label: header,
+                                        sort: "ASC",
+                                      }));
+                                      sortDataBy(
+                                        tradeList,
+                                        tableHeadingObj[header]
+                                      );
+                                    }
+                                  })
+                                }
+                              >
+                                <img
+                                  style={{ cursor: "pointer" }}
+                                  src={
+                                    sort?.label === header
+                                      ? sort?.sort === "ASC"
+                                        ? ArrowUP
+                                        : DownArrow
+                                      : DownArrow
+                                  }
+                                />
+                              </span>
+                            )}
+                          </th>
+                        ))}
+
+                        <th>Daily Questionnaire</th>
+                        {columnDetail?.length > 0 &&
+                          columnDetail?.map((header, index) => (
+                            <th key={index}>
+                              {header?.column_name}
+                              <button
+                                className="add_button"
+                                onClick={() => {
+                                  deleteColumn(header?.id);
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </th>
+                          ))}
+
+                        <th>
+                          {!edit && (
+                            <button
+                              className="add_button"
+                              type="button"
+                              onClick={() => {
+                                handleAddColumn();
+                              }}
+                            >
+                              Add Column
+                            </button>
+                          )}
+                        </th>
+                        <th key={"heads"}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <>
+                        <Formik
+                          initialValues={{
+                            asset_class: "",
+                            position_size: "",
+                            points_captured: "",
+                            trade_pnl: "",
+                            position: "",
+                            buy_sell: "",
+                            trade_remark: "",
+                            trade_karma: "",
+                            trade_date: "",
+                            holding_trade_type: "",
+                            trade_charges: "",
+                            trading_account: "",
+                            stop_loss: "",
+                            trade_target: "",
+                            trade_conviction: "",
+                            strategy_used: "",
+                            trade_risk: "",
+                            reason_for_trade: "",
+                            percentage_of_account_risked: "",
+                            image: "",
+                            trade_slippage: "",
+                            trade_penalties: "",
+                            net_roi: "",
+                            trade_customizable: "",
+                            opening_balance: "",
+                            trade_tags: "",
+                            comment: "",
+                            dynamicColumnsField: "",
+                            asset_class: "",
+                            ...columnDetail?.reduce((acc, item) => {
+                              return {
+                                ...acc,
+                                [item.column_name]: "",
+                              };
+                            }, {}),
+                            dynamicColumn: [],
+                          }}
+                          validationSchema={tradeSchema}
+                          innerRef={(instance) =>
+                            (formikRef.current = instance)
+                          }
+                          // onSubmit={handleAddSubmit}
+                        >
+                          {({ values, setFieldValue }) =>
+                            !edit && (
+                              <tr key={"first"} className="first">
+                                <td>
+                                  <ReactDatePicker
+                                    id="trade_date"
+                                    name="trade_date"
+                                    closeOnScroll={true}
+                                    selected={startDate}
+                                    onChange={(date) => {
+                                      setStartDate(date);
+                                      setFieldValue("trade_date", date); // Update the formik value
+                                    }}
+                                    dateFormat="yyyy-MM-dd"
+                                  />
+                                  <ErrorMessage
+                                    name="trade_date"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="asset_class">
+                                    <option>Select</option>
+                                    <option value="Equity">Equity</option>
+                                    <option value="Features">Features</option>
+                                    <option value="Options">Options</option>
+                                    <option value="Currency">Currency</option>
+                                    <option value="Commodity">Commodity</option>
+                                    <option value="Crypto">Crypto</option>
+                                  </Field>
+                                  <ErrorMessage
+                                    name="asset_class"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="text" name="position" />
+                                  <ErrorMessage
+                                    name="position"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="buy_sell">
+                                    <option>Select</option>
+                                    <option value="Buy">Buy</option>
+                                    <option value="Sell">Sell</option>
+                                  </Field>
+                                  <ErrorMessage
+                                    name="buy_sell"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="position_size" />
+                                  <ErrorMessage
+                                    name="position_size"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="stop_loss" />
+                                  <ErrorMessage
+                                    name="stop_loss"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="trade_target" />
+                                  <ErrorMessage
+                                    name="trade_target"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="trade_pnl" />
+                                  <ErrorMessage
+                                    name="trade_pnl"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="points_captured" />
+                                  <ErrorMessage
+                                    name="points_captured"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="net_roi" />
+                                  <ErrorMessage
+                                    name="net_roi"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="strategy_used">
+                                    <option>Select</option>
+                                    {strategies?.length > 0 &&
+                                      strategies.map((el, index) => (
+                                        <option key={index}>
+                                          {el.strategies_name}
+                                        </option>
+                                      ))}
+                                  </Field>
+                                  <ErrorMessage
+                                    name="strategy_used"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="holding_trade_type">
+                                    <option>Select</option>
+                                    <option value="Positional">
+                                      Positional
+                                    </option>
+                                    <option value="Intraday">Intraday</option>
+                                    <option value="Swing">Swing</option>
+                                    <option value="Short Term">
+                                      Short Term
+                                    </option>
+                                    <option value="Long Term">Long Term</option>
+                                    <option value="Expiry">Expiry</option>
+                                    <option value="BTST">BTST</option>
+                                  </Field>
+                                  <ErrorMessage
+                                    name="holding_trade_type"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="trade_conviction">
+                                    <option>Select</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                  </Field>
+                                  <ErrorMessage
+                                    name="trade_conviction"
+                                    component="div"
+                                  />
+                                </td>
+
+                                <td>
+                                  <input
+                                    className="w-[50%]"
+                                    type="number"
+                                    onChange={(e) => {
+                                      setFieldValue(
+                                        "trade_risk",
+                                        `${e.target.value}:${
+                                          values?.trade_risk
+                                            ?.replace(/ /g, "")
+                                            .split(/:/g)[1] || 1
+                                        }`
+                                      );
+                                    }}
+                                    value={
+                                      values?.trade_risk
+                                        ?.replace(/ /g, "")
+                                        .split(/:/g)[0] || 1
+                                    }
+                                  />
+                                  <span className="font-bold, mx-2 text-center text-2xl">
+                                    :
+                                  </span>
+                                  <input
+                                    className="w-[50%]"
+                                    type="number"
+                                    onChange={(e) => {
+                                      setFieldValue(
+                                        "trade_risk",
+                                        `${
+                                          values?.trade_risk
+                                            ?.replace(/ /g, "")
+                                            .split(/:/g)[0] || 1
+                                        }:${e.target.value}`
+                                      );
+                                    }}
+                                    value={
+                                      values?.trade_risk
+                                        ?.replace(/ /g, "")
+                                        .split(/:/g)[1] || 1
+                                    }
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="text" name="reason_for_trade" />
+                                  <ErrorMessage
+                                    name="reason_for_trade"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="trade_karma">
+                                    <option>Select</option>
+                                    <option value="Satisfied">Satisfied</option>
+                                    <option value="Unsatisfied">
+                                      Unsatisfied
+                                    </option>
+                                  </Field>
+                                  <ErrorMessage
+                                    name="trade_karma"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="text" name="comment" />
+                                  <ErrorMessage
+                                    name="comment"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field
+                                    type="number"
+                                    name="percentage_of_account_risked"
+                                  />
+                                  <ErrorMessage
+                                    name="percentage_of_account_risked"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="trade_charges" />
+                                  <ErrorMessage
+                                    name="trade_charges"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="trade_slippage" />
+                                  <ErrorMessage
+                                    name="trade_slippage"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="trade_penalties" />
+                                  <ErrorMessage
+                                    name="trade_penalties"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field as="select" name="trading_account">
+                                    <option>Select</option>
+                                    {accountList.map((account) => (
+                                      <option key={account.account_Id}>
+                                        {account?.account_name}
+                                      </option>
+                                    ))}
+                                  </Field>
+                                  <ErrorMessage
+                                    name="trading_account"
+                                    component="div"
+                                  />
+                                </td>
+                                <td>
+                                  <Field type="number" name="opening_balance" />
+                                  <ErrorMessage
+                                    name="opening_balance"
+                                    component="div"
+                                  />
+                                </td>
+                                <td className="special-col">
+                                  <input
+                                    type="file"
+                                    name="image"
+                                    id="image"
+                                    onChange={(e) =>
+                                      setImage(e.target.files[0])
+                                    }
+                                  />
+                                  {showPrev && (
+                                    <div className="img-preview">
+                                      {image && (
+                                        <img src={URL.createObjectURL(image)} />
+                                      )}
+                                    </div>
+                                  )}
+                                  <img
+                                    src={eye}
+                                    alt="Preview"
+                                    height={21}
+                                    className="prev_eye"
+                                    width={21}
+                                    onClick={() => setShowPrev((prev) => !prev)}
+                                  />
+                                  <ErrorMessage name="image" component="div" />
+                                </td>
+
+                                <td>
+                                  <button
+                                    onClick={openQuestionnaire}
+                                    type="button"
+                                    className="fill_button"
+                                  >
+                                    Fill up
+                                  </button>
+                                  {showQuestionnaire && !edit && (
+                                    <DailyQuestionnaire
+                                      onClose={closeQuestionnaire}
+                                      onSubmitAnswers={(answers) =>
+                                        handleQuestionnaireSubmit(
+                                          answers,
+                                          setFieldValue
+                                        )
+                                      }
+                                    />
+                                  )}
+                                </td>
+
+                                {columnDetail?.length > 0 &&
+                                  columnDetail?.map(
+                                    (items) =>
+                                      items?.column_name && (
+                                        <td key={items.column_name}>
+                                          <Field
+                                            type="text"
+                                            name={`${items?.column_name}`}
+                                          />
+                                          <ErrorMessage
+                                            name={`${items?.column_name}`}
+                                            component="div"
+                                          />
+                                        </td>
+                                      )
+                                  )}
+
+                                <td>
+                                  <Field
+                                    type="text"
+                                    name="dynamicColumnsField"
+                                    value={values.dynamicColumnsField}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        "dynamicColumnsField",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </td>
+
+                                <td>
+                                  <button
+                                    type="button"
+                                    className="submit-btn"
+                                    onClick={() => {
+                                      handleSaveSubmit(values, token);
+                                    }}
+                                  >
+                                    Save
+                                  </button>
+                                </td>
+                              </tr>
+                            )
+                          }
+                        </Formik>
+                      </>
                     </tbody>
                   </Table>
                 </div>

@@ -101,7 +101,7 @@ const CurveChart = ({ dataList }) => {
         label: "Account Balance",
         data: graphData.map((data) => data.equity),
         borderColor: "rgb(53, 162, 235)",
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
+        backgroundColor: "#f4f9ff",  
         pointRadius: 2.5,
         pointHoverRadius: 4,
         borderWidth: 1.8,

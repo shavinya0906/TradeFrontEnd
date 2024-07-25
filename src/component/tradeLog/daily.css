@@ -13,6 +13,13 @@
     z-index: 999;
 }
 
+.answer {
+    border: rgb(192, 191, 191) 1.5px solid;
+    border-radius: 5px;
+    padding: 5px 10px;
+    width: 95%;
+}
+
 .popUUpBg .filterPopUUpHeader {
     display: flex;
     align-items: center;
@@ -124,7 +131,8 @@
     margin-bottom: 5px;
 }
 
-.inputField {
+
+.ipf {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;

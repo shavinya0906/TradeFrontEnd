@@ -14,8 +14,8 @@ const StrategiesBox = ({ strategies }) => {
         ))}
       </div>
       {formStatus === "none" ? (
-        <div className="add-btn" onClick={() => setFormStatus("add")}>
-          + Add Strategy
+        <div className="bbb">
+          <button className="stra-but" onClick={() => setFormStatus("add")}>+ Add Strategy</button>
         </div>
       ) : null}
     </>

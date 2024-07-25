@@ -113,14 +113,18 @@ form {
     }
   }
 }
-.add-btn {
-  width: 10rem;
-  padding: 1rem 2rem;
+.bbb {
   display: flex;
-  margin-left: auto;
-  border-radius: 10px;
-  color: white;
-  background: #0075FF;
+  flex-direction: row-reverse;
+}
+
+.stra-but {
+  border: none;
+  width: 140px;
+  padding: 7px;
+  background-color: #0075FF;
+  border-radius: 8px;
   white-space: nowrap;
   cursor: pointer;
+  color: white;
 }
