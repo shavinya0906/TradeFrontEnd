@@ -4,6 +4,10 @@
   align-items: stretch;
 }
 
+#side_ka_nav .sidebar.is-open {
+  background: #0e0c15;
+}
+
 a,
 a:hover,
 a:focus {
@@ -25,10 +29,12 @@ a:focus {
   background: #0e0c15;
 }
 
+
 .sidebar.is-open {
   margin-left: 0;
   transition: all 0.5s;
   position: fixed;
+  background: #0e0c15;
 }
 
 .sidebar.is-close {
@@ -36,6 +42,7 @@ a:focus {
   max-width: 90px;
   margin-left: 0px;
   position: fixed;
+  background: #0e0c15;
 }
 
 .nav-items {

@@ -68,6 +68,8 @@ export function GroupedBarChart({ dataList }) {
       mode: "index",
       intersect: false,
     },
+
+    maxBarThickness: 40,
   };
 
   const datasets = Object.values(strategyROI).map((strategyData) => {
