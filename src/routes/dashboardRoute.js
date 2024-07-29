@@ -11,7 +11,7 @@ import Calendar from "../component/calendar";
 import Calculator from "../component/calculator";
 import Mantra from "../component/mantra";
 import Userinfo from "../component/userinfo/userinfo";
-import NotFound from "../component/404 Page/NotFound";
+import NotFound from "../component/404Page/NotFound";
 import EditProfile from "../component/Edit Profile/editProfile";
 
 const DashboardRouter = ({ state }) => {
