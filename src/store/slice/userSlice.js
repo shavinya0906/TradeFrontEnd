@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const userAPIUrl = process.env.REACT_APP_USER_API_URL;
+const userAPIUrl = process.env.REACT_APP_AUTH_API_URL;
 
 export const addUser = createAsyncThunk("user/AddUser", async (userData,{ rejectWithValue }) => {
   userData["status"] = 1;
   try {
     const response = await axios.post(
-      `http://localhost:3000/v1/api/user/signup`,
+      `${userAPIUrl}/auth/user/signup`,
       userData,
       {
         headers: {
@@ -32,7 +32,7 @@ export const updateUser = createAsyncThunk(
   async (userData) => {
     try {
       const response = await axios.put(
-        `http://localhost:3000/v1/api/user/update-user/`,
+        `${userAPIUrl}/auth/user/update-user/`,
         userData.data,
         {
           headers: {
@@ -50,7 +50,7 @@ export const updateUser = createAsyncThunk(
 
 export const fetchUserById = createAsyncThunk("/get-user/", async (userId) => {
   try {
-    const response = await axios.get(`${userAPIUrl}/user/${userId}`);
+    const response = await axios.get(`${userAPIUrl}/auth/user/${userId}`);
     return response.data;
   } catch (error) {
     throw error;

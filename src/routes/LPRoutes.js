@@ -23,7 +23,8 @@ import Login from "../component/auth/login";
 import Signup from "../component/auth/signup";
 import PrivateRoute from "../component/widgets/PrivateRoutes";
 import Dashboard from "../component/dashboard/dashboard";
-import ForgetPassword from "../component/auth/forgetPassword";
+import ForgotPassword from "../component/auth/forgetPassword";
+import ResetPassword from "../component/auth/ResetPassword";
 
 function LPRoutes() {
 
@@ -32,7 +33,7 @@ function LPRoutes() {
     "/login", "/signup", "/forgetpassword",
     "/tradelog", "/strategies", "/trading-accounts", "/trader-analytics",
     "/tools", "/calendar", "/calculator", "/mantra", "/userinfo", 
-    "/editProfile", "/dashboard"
+    "/editProfile", "/dashboard", "/reset-password"
   ];
   const shouldHideNavbarAndFooter = pathsToHideNavbarAndFooter.some(path =>
     location.pathname.startsWith(path)
@@ -67,7 +68,8 @@ function LPRoutes() {
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/forgetpassword" element={<ForgetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgetpassword" element={<ForgotPassword />} />
 
           <Route
             path="/faqs"

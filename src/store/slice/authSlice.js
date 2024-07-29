@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const authAPIUrl = process.env.REACT_APP_AUTH_API_URL;
+const authAPIUrl = process.env.REACT_APP_AUTH_API_URL; 
 
 // Async action to fetch user data after login
 export const fetchUserData = createAsyncThunk(
@@ -9,7 +9,7 @@ export const fetchUserData = createAsyncThunk(
   async (_, { getState }) => {
     try {
       const token = getState().auth.token;
-      const response = await axios.get(`${authAPIUrl}/get-user/`, {
+      const response = await axios.get(`${authAPIUrl}/auth/get-user/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -23,7 +23,7 @@ export const fetchUserData = createAsyncThunk(
 
 export const LoginUser = createAsyncThunk("auth/LoginUser", async (data) => {
   try {
-    const response = await axios.put(`${authAPIUrl}/user/login`, data, {
+    const response = await axios.put(`${authAPIUrl}/auth/user/login`, data, {
       headers: {
         "Content-Type": "application/json",
       },

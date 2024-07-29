@@ -450,7 +450,7 @@ function TradeLog() {
       const hold = JSON.parse(JSON.stringify(prev)).map((item, i) => {
         if (i === id) {
           item.dynamicColumn = item.dynamicColumn.map((dynamicColumnItem) => {
-            if (dynamicColumnItem.key === field) {
+            if (dynamicColumnItem.column_name === field) {
               dynamicColumnItem.value = value;
             }
             return dynamicColumnItem;
