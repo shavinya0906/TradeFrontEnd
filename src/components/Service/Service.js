@@ -10,7 +10,7 @@ import gifFile from './video.gif';
 function Service() {
     return (
         <section className="services_ pt-4">
-            <div className="container-fluid" id="mmmmm">
+            <div id="mmmmm" style={{padding: "30px"}}>
                 <h6 className="text">Why Choose Us</h6>
                 <h2 className="text2">
                     Reason For <span id="gradient-text">Choose Us</span>
@@ -31,8 +31,8 @@ function Service() {
                         </div>
                         <div className="img-res"><img src={icon2} id="iconimg2-res" className="iconimg" alt="Icon 2" /></div>
                         
-                        <div className="transitionnnnnn col-lg-4 col-12" style={{ fontSize: "18px" }}>
-                            <h5 style={{ fontFamily: "'Poppins'", fontWeight: 700 }}>Easy To Start</h5>
+                        <div className="transitionnnnnn col-lg-4 col-12" style={{ fontSize: "18px", textAlign: "left" }}>
+                            <h5 style={{ fontFamily: "'Poppins'", fontWeight: 700, textAlign: "left" }}>Easy To Start</h5>
                             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Unde aut placeat beatae mollitia similique itaque fugit, iste ipsa
                         </div>
                     </div>
@@ -66,8 +66,8 @@ function Service() {
                             <img src={icon4} id="iconimg4" className="iconimg" alt="Icon 4" />
                         </div>
                         <div className="img-res"><img src={icon4} id="iconimg4-res" className="iconimg" alt="Icon 4" /></div>
-                        <div className="transitionnnnnn col-lg-4 col-12" style={{ fontSize: "18px" }}>
-                            <h5 style={{ fontFamily: "'Poppins'", fontWeight: 700 }}>24/7 Support</h5>
+                        <div className="transitionnnnnn col-lg-4 col-12" style={{ fontSize: "18px", textAlign: "left" }}>
+                            <h5 style={{ fontFamily: "'Poppins'", fontWeight: 700, textAlign: "left" }}>24/7 Support</h5>
                             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Unde aut placeat beatae mollitia similique itaque fugit, iste ipsa, pariatur ea ipsam do.
                         </div>
                     </div>

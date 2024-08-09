@@ -8,7 +8,7 @@ import {
   Container,
   Row,
   FormGroup,
-  FormLabel,
+  FormLabel, 
   FormControl,
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,6 +20,9 @@ const INACTIVE_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 mins
 const ACTIVE_SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hrs
 
 const Login = () => {
+
+  const [message, setMessage] = useState('');
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isActiveSession, setIsActiveSession] = useState(false);
@@ -78,19 +81,23 @@ const Login = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const response = await dispatch(LoginUser(values)); // Wait for the dispatch to complete
+      console.log(response);
+      const { payload: {token, email, status}} = response;
 
-      const {
-        payload: {token, email }, // Extract email from the payload
-      } = response;
-
-
+      if(status===500){
+        setMessage("Invalid credentials");
+        alert('Invalid credentials');
+      }
+      if(status===404){
+        setMessage("User not found");
+        alert('User not found');
+      }
       // Dispatch fetchUserData and wait for it to complete
       await dispatch(fetchUserData());
 
       // Store authentication token in session storage
       sessionStorage.setItem("authToken", token);
-
-      setSubmitting(false);
+      setSubmitting(false); 
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
@@ -137,6 +144,9 @@ const Login = () => {
                     as={FormControl}
                   />
                 </FormGroup>
+                {message && (
+                  <div>{message}</div>
+                )}
 
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Logging in..." : "Login"}

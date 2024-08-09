@@ -28,12 +28,23 @@ export const LoginUser = createAsyncThunk("auth/LoginUser", async (data) => {
         "Content-Type": "application/json",
       },
     });
-    // const auth_token = response.data.auth_token;
-    const auth_token = response.data.auth_token;
-    // return response.data;
-    return auth_token;
+  //   const auth_token = response.data.auth_token;
+  //   // return response.data;
+  //   return auth_token;
+  // } catch (error) {
+  //   throw error;
+  // }
+
+  const { auth_token, status, message } = response.data;
+
+    return { auth_token, status, message };
   } catch (error) {
-    throw error;
+    if (error.response) {
+      const { status, data } = error.response;
+      throw { message: data.message || `Server error: ${status}`, status };
+    } else {
+      throw { message: "Network error or request failed.", status: 500 };
+    }
   }
 });
 
@@ -43,18 +54,22 @@ const authSlice = createSlice({
     token: "",
     user: null, // Add user object to store user data
     isLoading: false,
+    error: null, // Add error state
   },
   extraReducers: (builder) => {
     builder
       .addCase(LoginUser.pending, (state, action) => {
         state.isLoading = true;
+        state.error = null; // Clear previous error
       })
       .addCase(LoginUser.fulfilled, (state, action) => {
-        state.token = action.payload;
+        state.token = action.payload.auth_token;
         state.isLoading = false;
+        state.error = null; // Clear previous error
       })
       .addCase(LoginUser.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.error.message; // Set error message from action
       })
       .addCase(fetchUserData.pending, (state, action) => {
         state.isLoading = true;

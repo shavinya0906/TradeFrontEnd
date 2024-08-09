@@ -70,3 +70,49 @@
         font-size: 15px;
     }
 }
+
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    /* margin-bottom: 20px; */
+    padding: 10px;
+  }
+  
+  .toggle-button {
+    display: flex;
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    overflow: hidden;
+    width: 200px;
+  }
+  
+  .toggle-option {
+    flex: 1;
+    padding: 10px 20px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 1;
+    font-size: 15px;
+    font-weight: 400;
+  }
+  
+  .toggle-option:first-child {
+    border-right: 1px solid #ccc;
+  }
+  
+  .toggle-background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    margin: 1.5px;
+    background-color: rgba(20, 50, 93, 1);
+    border-radius: 25px;
+    transition: transform 0.5s ease;
+    z-index: 0;
+  }
+  
+  .toggle-option.selected {
+    color: white;
+  }

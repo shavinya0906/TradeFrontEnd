@@ -37,7 +37,7 @@ const Home = () => {
 
   return (
     <>
-      <h1>Dashboard</h1>
+      <h1 style={{textAlign: "left"}}>Dashboard</h1>
       {!isLoading ?
       <div className="dashboard-content-wrapper">
         <div className="dash-row">

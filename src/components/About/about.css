@@ -5,6 +5,8 @@
     background-clip: text;
     color: transparent;
     text-align: center;
+    margin: 2% 18%;
+    font-size: 57px;
 }
 
 .py-5{
@@ -14,8 +16,6 @@
     
     /* Add your background image URL here */
     background-size: contain,contain;
-  
-    height: 50%;
 
 }
 
@@ -23,21 +23,19 @@
     color: #ffffff;
 }
 
-.lead {
+#lead {
     color: rgba(168, 169, 179, 1);
-    text-align: justify center;
-    margin-left: 3%;
-    margin-right: 3%;
-    /* margin-left: 6%; */
-    /* margin-right: 2%; */
-    /* padding-left: 170px; */
-    /* padding-right: 170px; */
+    text-align: center;
+    margin: 3% 18.5%;
+    font-size: 1rem;
     font-family: poppins;
 }
 
 #btn {
+    margin-top: 20px;
+    margin-bottom: 15px;
     width: 248px;
-    top: 690px;
+    top: 700px;
     left: 836px;
     border-radius: 6px;
     border-image-slice: 1;
@@ -49,6 +47,7 @@
     display: inline-block;
 }
 #btn:hover{
+    border-radius: 6px;
     color: black;
     background: linear-gradient(62.57deg, #FBB040 5.17%, #FBB040 12.63%, #FFF200 59.88%);
 }

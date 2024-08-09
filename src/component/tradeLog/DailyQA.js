@@ -1,16 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import CloseIcon from "../../assets/images/closeIcon.svg";
 import "./daily.css";
-import { useDispatch, useSelector } from "react-redux";
-import { getTradeById, updateTrade } from "../../store/slice/tradeLogSlice";
 
 const DailyQA = ({ onClose, givenAnss=[], isEdit }) => {
-
-  // const token = useSelector((state) => state.auth.token);
-  // const dispatch = useDispatch();
-  // const reduxData = useSelector((state) => state);
-
-  console.log(isEdit);
 
   const defaultAnswers = Array(8).fill("-");
   const answers = givenAnss.concat(defaultAnswers).slice(0, 8);

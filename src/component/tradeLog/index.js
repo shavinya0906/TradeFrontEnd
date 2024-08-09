@@ -7,7 +7,7 @@ import {
   tradeLogList,
   tradeLogUpdateFilter,
 } from "../../store/slice/tradeLogSlice";
-import { Formik, Field, ErrorMessage } from "formik";
+import { Formik, Field, ErrorMessage, Form } from "formik";
 import * as Yup from "yup";
 import Table from "react-bootstrap/Table";
 import "./tradelog.scss";
@@ -61,7 +61,7 @@ const tableHeading = [
   "Penalties",
   "Trading account",
   "Opening Balance",
-  "Image",
+  // "Image",
 ];
 
 const sortableHeaders = [
@@ -101,12 +101,12 @@ const tableHeadingObj = {
   Penalties: { label: "trade_penalties", type: "number" },
   "Trading account": { label: "trading_account", type: "string" },
   "Opening Balance": { label: "opening_balance", type: "number" },
-  Image: { label: "image", type: "string" },
+  // Image: { label: "image", type: "string" },
 };
 
 function TradeLog() {
   const dispatch = useDispatch();
-  const [image, setImage] = useState(null);
+  // const [image, setImage] = useState(null);
   const formikRef = useRef(null);
   const [showPrev, setShowPrev] = useState(false);
   const token = useSelector((state) => state?.auth?.token);
@@ -120,6 +120,10 @@ function TradeLog() {
   const sortedTableHeading = tableHeading.slice();
   const sortable_TableHeadings = sortableHeaders.slice();
   const [tradeList, setTradeList] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const isAddedOrEdited = useSelector(
+    (state) => state?.trades?.isAddedOrEdited
+  );
 
   useEffect(() => {
     if (end) {
@@ -154,22 +158,21 @@ function TradeLog() {
     }
   }, [reduxData]);
 
-  const isAddedOrEdited = useSelector(
-    (state) => state?.trades?.isAddedOrEdited
-  );
+
+  
   const columnDetail = useSelector((state) => state?.columnList?.data);
   const [strategies, setStrategies] = useState([]);
   const [accountList, setAccountList] = useState([]);
   const strategyData = useSelector((state) => state?.strategy?.data);
   const tradingAccounts = useSelector((state) => state?.tradingAccounts?.data);
   const [edit, setEdit] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
   const [startDate1, setStartDate1] = useState(new Date());
   const [id, setId] = useState("");
   const [popUp, setPopUp] = useState(false);
   const [changes, setChanges] = useState(false);
   const [allIds, setAllIds] = useState([]);
   const { starttDate, enddDate } = useParams();
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     if (strategyData?.length) {
@@ -196,7 +199,6 @@ function TradeLog() {
       dispatch(tradeLogUpdateFilter({ token: token, values: payloadUrl }));
     } else {
       let payloadUrl = `&pageSize=${pageDetail.pageSize}&page=${pageDetail.page}`;
-      // dispatch(tradeLogUpdateFilter({ token: token, values: payloadUrl }));
       dispatch(tradeLogList({ token: token, payloadUrl: payloadUrl }));
     }
     dispatch(strategyList(token));
@@ -209,15 +211,15 @@ function TradeLog() {
 
   const tradeSchema = Yup.object().shape({
     asset_class: Yup.string(),
-    position_size: Yup.number().required("Required"),
+    position_size: Yup.number().min(0, "<0").required("*"),
     points_captured: Yup.number(),
     trade_pnl: Yup.number(),
-    position: Yup.string().required("Required"),
-    buy_sell: Yup.string().required("Required"),
+    position: Yup.string().required("*"),
+    buy_sell: Yup.string().required("*"),
     trade_karma: Yup.string(),
-    trade_date: Yup.string().required("Required"),
+    trade_date: Yup.date().required("*"),
     holding_trade_type: Yup.string(),
-    trade_charges: Yup.number().required("Required"),
+    trade_charges: Yup.number().required("*"),
     trading_account: Yup.string(),
     stop_loss: Yup.string(),
     trade_conviction: Yup.string(),
@@ -226,14 +228,13 @@ function TradeLog() {
     reason_for_trade: Yup.string(),
     percentage_of_account_risked: Yup.number(),
     trade_slippage: Yup.number(),
-    trade_penalties: Yup.number().required("Required"),
+    trade_penalties: Yup.number().required("*"),
     net_roi: Yup.number(),
-    trade_customizable: Yup.string(),
     opening_balance: Yup.number().when("trade_date", {
       is: (_tradeDate) => {
         return tradeList?.length === 0;
       },
-      then: Yup.number().required("Required"),
+      then: Yup.number().required("*"),
       otherwise: Yup.number().transform((value, originalObject) => {
         if (!value) {
           return calculateOpeningBalance(originalObject);
@@ -264,18 +265,6 @@ function TradeLog() {
     return calculatedBalance;
   }
 
-  // function filterEmptyValues(obj) {
-  //   const filteredObject = {};
-
-  //   for (const key in obj) {
-  //     if (obj.hasOwnProperty(key) && obj[key] !== "") {
-  //       filteredObject[key] = obj[key];
-  //     }
-  //   }
-
-  //   return filteredObject;
-  // }
-
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSaveSubmit = (values, token) => {
@@ -297,6 +286,7 @@ function TradeLog() {
 
     // Add the dynamicColumn array to sanitizedValues
     sv.dynamicColumn = dc;
+    let payloadUrl = `&pageSize=${pageDetail.pageSize}&page=${pageDetail.page}`;
 
     const filename = "tradelog";
     axios
@@ -311,53 +301,15 @@ function TradeLog() {
           "Saved in database. This is response from backend: ",
           response.data
         );
+        dispatch(tradeLogList({ token: token, payloadUrl: payloadUrl }));
         alert("Saved.");
       })
       .catch((error) => {
         console.error(error);
         alert("An error occurred while saving the data. Please try again.");
       });
+
   };
-
-  // const handleAddSubmit = async (values, { resetForm }) => {
-  //   console.log("This is handleAddSubmit");
-  //   for (const obj of columnDetail) {
-  //     // dispatch(createColumnData({token:token,data:obj.column_name}));
-  //     const newObject = {
-  //       key: obj.id,
-  //       value: values[obj.column_name] || "",
-  //     };
-  //     values.dynamicColumn = [...values.dynamicColumn, newObject];
-  //     delete values[obj.column_name];
-  //   }
-  //   delete values.dynamicColumnsField;
-  //   values.trade_date = moment(values?.trade_date).format("yyyy-MM-DD");
-  //   let payload = {
-  //     token: token,
-  //     values: filterEmptyValues(values),
-  //     // values: { ...values, image: imageBase },
-  //   };
-  //   if (image) {
-  //     const imageBase = await getBase64(image);
-  //     payload = {
-  //       ...payload,
-  //       values: {
-  //         ...payload.values,
-  //         image: imageBase,
-  //       },
-  //     };
-  //   }
-
-  //   setTradeList((prev) => {
-  //     if (Array.isArray(prev)) {
-  //       return [payload.values, ...prev];
-  //     } else {
-  //       return [payload.values];
-  //     }
-  //   });
-  //   dispatch(tradeLogAdd(payload));
-  //   resetForm();
-  // };
 
   const handleEditSubmit = () => {
     const customId = [...new Set(allIds)];
@@ -381,42 +333,38 @@ function TradeLog() {
     setEdit(false);
   };
 
-  // const handlesSubmit = () => {
-  //   if (formikRef?.current) {
-  //     // handleEditSubmitSingleTrade(formikRef?.current?.values);
-  //   }
-  // };
 
   function matchAndMapColumns(columnData, dynamicColumnData) {
-  const result = [];
+    const result = [];
 
-  // Check if columnData is an array
-  if (Array.isArray(columnData)) {
-    for (const columnItem of columnData) {
-      const matchingDynamicColumn = dynamicColumnData.find(
-        (dynamicColumnItem) => dynamicColumnItem.column_name === columnItem.column_name
-      );
+    // Check if columnData is an array
+    if (Array.isArray(columnData)) {
+      for (const columnItem of columnData) {
+        const matchingDynamicColumn = dynamicColumnData.find(
+          (dynamicColumnItem) =>
+            dynamicColumnItem.column_name === columnItem.column_name
+        );
 
-      // If there is a match, add to the result
-      if (matchingDynamicColumn) {
-        result.push({
-          name: columnItem.column_name,
-          value: matchingDynamicColumn.value,
-        });
-      } else {
-        // If no match, add an entry with an empty value
-        result.push({
-          name: columnItem.column_name,
-          value: "-",
-        });
+        // If there is a match, add to the result
+        if (matchingDynamicColumn) {
+          result.push({
+            name: columnItem.column_name,
+            value: matchingDynamicColumn.value,
+          });
+        } else {
+          // If no match, add an entry with an empty value
+          result.push({
+            name: columnItem.column_name,
+            value: "-",
+          });
+        }
       }
+    } else {
+      console.error("Column data is not an array");
     }
-  } else {
-    console.error("Column data is not an array");
-  }
 
-  return result;
-}
+    return result;
+  }
 
   const closePopUp = () => {
     setPopUp((_prev) => false);
@@ -472,11 +420,11 @@ function TradeLog() {
     sort: "ASC",
   });
 
-  function sortDataBy(data, byKey) {
+  function sortDataBy(data, byKey, order) {
     let sortedData;
     const arrayForSort = [...data];
-    if (sort?.sort === "ASC" || !sort?.sort) {
-      if (byKey.type == "string") {
+    if (order === "ASC") {
+      if (byKey.type === "string") {
         sortedData = arrayForSort.sort((a, b) => {
           let x = a[byKey.label]?.toLowerCase();
           let y = b[byKey.label]?.toLowerCase();
@@ -494,7 +442,7 @@ function TradeLog() {
         });
       }
     } else {
-      if (byKey.type == "string") {
+      if (byKey.type === "string") {
         sortedData = arrayForSort.sort((a, b) => {
           let x = a[byKey.label]?.toLowerCase();
           let y = b[byKey.label]?.toLowerCase();
@@ -507,45 +455,71 @@ function TradeLog() {
           return 0;
         });
       } else {
-        sortedData = arrayForSort.reverse((a, b) => {
-          return a[byKey.label] - b[byKey.label];
+        sortedData = arrayForSort.sort((a, b) => {
+          return b[byKey.label] - a[byKey.label];
         });
       }
     }
     setTradeList(sortedData);
   }
+
   const [searchText, setSearchText] = useState("");
+  const [noDataFound, setNoDataFound] = useState(false);
 
   const handleSearchInputChange = (event) => {
     setSearchText(event.target.value);
   };
 
+  const [originalData, setOriginalData] = useState([]);
+
   useEffect(() => {
-    setTradeList(() =>
-      reduxData?.data?.filter((trade) => {
-        return (
-          (trade.trade_remark &&
-            trade.trade_remark.toLowerCase().includes(searchText)) ||
-          (trade.asset_class &&
-            trade.asset_class.toLowerCase().includes(searchText)) ||
-          (trade.holding_trade_type &&
-            trade.holding_trade_type.toLowerCase().includes(searchText)) ||
-          (trade.strategy_used &&
-            trade.strategy_used.toLowerCase().includes(searchText)) ||
-          (trade.trade_tags &&
-            trade.trade_tags.toLowerCase().includes(searchText)) ||
-          (trade.reason_for_trade &&
-            trade.reason_for_trade.toLowerCase().includes(searchText)) ||
-          (trade.buy_sell &&
-            trade.buy_sell.toLowerCase().includes(searchText)) ||
-          (trade.comment && trade.comment.toLowerCase().includes(searchText)) ||
-          (trade.trading_account &&
-            trade.trading_account.toLowerCase().includes(searchText)) ||
-          (trade.position && trade.position.toLowerCase().includes(searchText))
-        );
-      })
-    );
-  }, [searchText]);
+    if (!reduxData?.data) {
+      setTradeList([]);
+      setOriginalData([]);
+      setNoDataFound(true);
+      return;
+    }
+
+    if (originalData.length === 0) {
+      setOriginalData(reduxData.data);
+    }
+
+    const filteredData = reduxData.data.filter((trade) => {
+      return (
+        (trade.asset_class && trade.asset_class.includes(searchText)) ||
+        (trade.asset_class &&
+          trade.asset_class.toLowerCase().includes(searchText)) ||
+        (trade.holding_trade_type &&
+          trade.holding_trade_type.toLowerCase().includes(searchText)) ||
+        (trade.holding_trade_type &&
+          trade.holding_trade_type.includes(searchText)) ||
+        (trade.strategy_used &&
+          trade.strategy_used.toLowerCase().includes(searchText)) ||
+        (trade.strategy_used && trade.strategy_used.includes(searchText)) ||
+        (trade.reason_for_trade &&
+          trade.reason_for_trade.toLowerCase().includes(searchText)) ||
+        (trade.reason_for_trade &&
+          trade.reason_for_trade.includes(searchText)) ||
+        (trade.buy_sell && trade.buy_sell.toLowerCase().includes(searchText)) ||
+        (trade.buy_sell && trade.buy_sell.includes(searchText)) ||
+        (trade.comment && trade.comment.toLowerCase().includes(searchText)) ||
+        (trade.comment && trade.comment.includes(searchText)) ||
+        (trade.trading_account &&
+          trade.trading_account.toLowerCase().includes(searchText)) ||
+        (trade.trading_account && trade.trading_account.includes(searchText)) ||
+        (trade.position && trade.position.toLowerCase().includes(searchText)) ||
+        (trade.position && trade.position.includes(searchText))
+      );
+    });
+
+    if (filteredData.length === 0 && searchText.trim() !== "") {
+      setTradeList(originalData);
+      setNoDataFound(true);
+    } else {
+      setTradeList(filteredData);
+      setNoDataFound(filteredData.length === 0 && searchText.trim() !== "");
+    }
+  }, [searchText, reduxData?.data]);
 
   const handleNext = () => {
     if (pageDetail.page < reduxData?.totalRecords / 10) {
@@ -581,6 +555,26 @@ function TradeLog() {
     }
   };
 
+  const handleFirst = () => {
+    setPageDetail((prevState) => ({
+      ...prevState,
+      page: 1,
+    }));
+    let payloadUrl = `&pageSize=${pageDetail.pageSize}&page=${1}`;
+    dispatch(tradeLogList({ token: token, payloadUrl: payloadUrl }));
+  };
+
+  const handleLast = () => {
+    setPageDetail((prevState) => ({
+      ...prevState,
+      page: Math.ceil(reduxData.totalRecords / pageDetail.pageSize),
+    }));
+    let payloadUrl = `&pageSize=${pageDetail.pageSize}&page=${Math.ceil(
+      reduxData.totalRecords / pageDetail.pageSize
+    )}`;
+    dispatch(tradeLogList({ token: token, payloadUrl: payloadUrl }));
+  };
+
   const [showQuestionnaire, setShowQuesitonireModal] = useState(false);
   const [showQuestionnaireDQ, setShowQuesitonireDQ] = useState(false);
   const [questionnaireANS, setQuestionnaireANS] = useState();
@@ -607,7 +601,7 @@ function TradeLog() {
     payload: newColumnData,
   });
 
-  const createColumn = async () => {
+  const createColumn = async (ni) => {
     try {
       // Dispatch getColumnData action to fetch the current column data
       dispatch(getColumnData(token));
@@ -630,7 +624,6 @@ function TradeLog() {
       dispatch(getColumnData(token));
 
       // Optionally, clear the dynamicColumnsField input
-      setFieldValue("dynamicColumnsField", "");
     } catch (error) {
       console.error("Error creating column:", error);
     }
@@ -640,11 +633,6 @@ function TradeLog() {
     // Fetch column data when the component mounts
     dispatch(getColumnData(token));
   }, [dispatch]);
-
-  // const deleteColumn = (columnId) => {
-  //   // Get the token from your state or wherever you store it
-  //   dispatch(deleteColumnData({ token, columnId }));
-  // };
 
   const deleteColumn = async (columnId) => {
     try {
@@ -658,6 +646,7 @@ function TradeLog() {
 
       if (response?.payload?.success) {
         dispatch(getColumnData(token));
+        alert("Column Deleted");
         // Dispatch updateColumnDetail action to update the Redux store with the latest column details
       } else {
         console.error(
@@ -670,30 +659,46 @@ function TradeLog() {
     }
   };
 
-  const handleAddColumn = async () => {
-    if (formikRef.current) {
-      const { dynamicColumnsField } = formikRef.current.values;
-      if (dynamicColumnsField.trim()) {
+  const handleAddColumn = async (new_input) => {
         setCol((prevCol) => [
           ...prevCol,
           {
             token: token,
-            data: dynamicColumnsField,
+            data: new_input,
           },
         ]);
-
-        createColumn();
-      }
+        createColumn(new_input);
       dispatch(
         createColumnData({
           token: token,
-          data: dynamicColumnsField,
+          data: new_input,
         })
       );
 
-      formikRef.current.setFieldValue("dynamicColumnsField", "");
       alert("New Column created");
-    }
+  };
+
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+  
+
+  const handleMouseEnter = (event) => {
+    const { clientX, clientY } = event;
+    setPopupPosition({ x: clientX, y: clientY });
+    setPopupVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setPopupVisible(false);
+  };
+
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleSave = () => {
+    setPopupVisible(false);
+    setInputValue("");
   };
 
   return (
@@ -807,6 +812,18 @@ function TradeLog() {
               </>
             )}
           </div>
+          {noDataFound && (
+            <div
+              style={{
+                fontStyle: "italic",
+                color: "red",
+                textAlign: "left",
+                marginLeft: "100px",
+              }}
+            >
+              No Data Found
+            </div>
+          )}
           <div className="tradelog-tbl">
             <div className="table_wrapper">
               <div className="table-responsive">
@@ -821,46 +838,24 @@ function TradeLog() {
                               className="sort-arrow"
                               onClick={() =>
                                 setSort((prev) => {
-                                  if (
-                                    prev?.label === "" ||
-                                    prev?.label !== header
-                                  ) {
-                                    setSort((prev) => ({
-                                      ...prev,
-                                      label: header,
-                                      sort: "ASC",
-                                    }));
-                                    sortDataBy(
-                                      tradeList,
-                                      tableHeadingObj[header]
-                                    );
-                                  } else if (
-                                    prev?.label === header &&
-                                    prev?.label === "ASC"
-                                  ) {
-                                    setSort((prev) => ({
-                                      ...prev,
-                                      label: header,
-                                      sort: "DESC",
-                                    }));
-                                    sortDataBy(
-                                      tradeList,
-                                      tableHeadingObj[header]
-                                    );
-                                  } else if (
-                                    prev?.label === header &&
-                                    prev?.label === "DESC"
-                                  ) {
-                                    setSort((prev) => ({
-                                      ...prev,
-                                      label: header,
-                                      sort: "ASC",
-                                    }));
-                                    sortDataBy(
-                                      tradeList,
-                                      tableHeadingObj[header]
-                                    );
+                                  let newSortOrder;
+                                  if (prev?.label !== header) {
+                                    newSortOrder = "ASC";
+                                  } else {
+                                    newSortOrder =
+                                      prev.sort === "ASC" ? "DESC" : "ASC";
                                   }
+
+                                  const newSort = {
+                                    label: header,
+                                    sort: newSortOrder,
+                                  };
+                                  sortDataBy(
+                                    tradeList,
+                                    tableHeadingObj[header],
+                                    newSortOrder
+                                  );
+                                  return newSort;
                                 })
                               }
                             >
@@ -900,19 +895,35 @@ function TradeLog() {
 
                       <th>
                         {!edit && (
-                          <button
+                          <div
                             className="add_button"
-                            type="button"
-                            onClick={() => {
-                              handleAddColumn();
-                            }}
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
                           >
-                            Add Column
-                          </button>
+                            + 
+                            {popupVisible && (
+                              <div
+                                className={`popup ${popupVisible ? 'popup-visible' : ''}`}
+                                style={{
+                                  top: `${popupPosition.y}px`,
+                                  left: `${popupPosition.x - 200}px`,
+                                }}
+                              >
+                                <div className="popup-header" style={{marginBottom: "5px", color: "black"}}>Add New Column</div>
+                                <input
+                                  type="text"
+                                  className="popupin"
+                                  value={inputValue}
+                                  onChange={handleInputChange}
+                                  placeholder="New Column Name"
+                                />
+                                <button className="popupsav" onClick={() => {handleSave();handleAddColumn(inputValue);}}>Save</button>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </th>
 
-                      {!edit && <th key={"heads"}>Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -925,7 +936,6 @@ function TradeLog() {
                           trade_pnl: "",
                           position: "",
                           buy_sell: "",
-                          trade_remark: "",
                           trade_karma: "",
                           trade_date: "",
                           holding_trade_type: "",
@@ -938,13 +948,11 @@ function TradeLog() {
                           trade_risk: "",
                           reason_for_trade: "",
                           percentage_of_account_risked: "",
-                          image: "",
+                          // image: "",
                           trade_slippage: "",
                           trade_penalties: "",
                           net_roi: "",
-                          trade_customizable: "",
                           opening_balance: "",
-                          trade_tags: "",
                           comment: "",
                           dynamicColumnsField: "",
                           ...columnDetail?.reduce((acc, item) => {
@@ -958,7 +966,9 @@ function TradeLog() {
                         }}
                         validationSchema={tradeSchema}
                         innerRef={(instance) => (formikRef.current = instance)}
-                        // onSubmit={handleAddSubmit}
+                        onSubmit={(values) => {
+                          handleSaveSubmit(values, token);
+                        }}
                       >
                         {({ values, setFieldValue }) =>
                           !edit && (
@@ -968,21 +978,30 @@ function TradeLog() {
                                   id="trade_date"
                                   name="trade_date"
                                   closeOnScroll={true}
+                                  placeholderText="Select Date"
                                   selected={startDate}
                                   onChange={(date) => {
                                     setStartDate(date);
                                     setFieldValue("trade_date", date); // Update the formik value
                                   }}
                                   dateFormat="yyyy-MM-dd"
+                                  maxDate={new Date()}
                                 />
-                                <ErrorMessage
-                                  name="trade_date"
-                                  component="div"
-                                />
+                                <ErrorMessage name="trade_date">
+                                  {(msg) => (
+                                    <span
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </span>
+                                  )}
+                                </ErrorMessage>
                               </td>
                               <td>
                                 <Field as="select" name="asset_class">
-                                  <option>Select</option>
+                                  <option value="" disabled>
+                                    Select
+                                  </option>
                                   <option value="Equity">Equity</option>
                                   <option value="Features">Features</option>
                                   <option value="Options">Options</option>
@@ -997,22 +1016,45 @@ function TradeLog() {
                               </td>
                               <td>
                                 <Field type="text" name="position" />
-                                <ErrorMessage name="position" component="div" />
+                                <ErrorMessage name="position">
+                                  {(msg) => (
+                                    <span
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </span>
+                                  )}
+                                </ErrorMessage>
                               </td>
-                              <td>
+                              <td id="bu_se">
                                 <Field as="select" name="buy_sell">
-                                  <option>Select</option>
+                                  <option value="" disabled>
+                                    Select
+                                  </option>
                                   <option value="Buy">Buy</option>
                                   <option value="Sell">Sell</option>
                                 </Field>
-                                <ErrorMessage name="buy_sell" component="div" />
+                                <ErrorMessage name="buy_sell">
+                                  {(msg) => (
+                                    <div
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </div>
+                                  )}
+                                </ErrorMessage>
                               </td>
                               <td>
                                 <Field type="number" name="position_size" />
-                                <ErrorMessage
-                                  name="position_size"
-                                  component="div"
-                                />
+                                <ErrorMessage name="position_size">
+                                  {(msg) => (
+                                    <span
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </span>
+                                  )}
+                                </ErrorMessage>
                               </td>
                               <td>
                                 <Field type="number" name="stop_loss" />
@@ -1169,10 +1211,15 @@ function TradeLog() {
                               </td>
                               <td>
                                 <Field type="number" name="trade_charges" />
-                                <ErrorMessage
-                                  name="trade_charges"
-                                  component="div"
-                                />
+                                <ErrorMessage name="trade_charges">
+                                  {(msg) => (
+                                    <span
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </span>
+                                  )}
+                                </ErrorMessage>
                               </td>
                               <td>
                                 <Field type="number" name="trade_slippage" />
@@ -1183,10 +1230,15 @@ function TradeLog() {
                               </td>
                               <td>
                                 <Field type="number" name="trade_penalties" />
-                                <ErrorMessage
-                                  name="trade_penalties"
-                                  component="div"
-                                />
+                                <ErrorMessage name="trade_penalties">
+                                  {(msg) => (
+                                    <span
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </span>
+                                  )}
+                                </ErrorMessage>
                               </td>
                               <td>
                                 <Field as="select" name="trading_account">
@@ -1204,12 +1256,17 @@ function TradeLog() {
                               </td>
                               <td>
                                 <Field type="number" name="opening_balance" />
-                                <ErrorMessage
-                                  name="opening_balance"
-                                  component="div"
-                                />
+                                <ErrorMessage name="opening_balance">
+                                  {(msg) => (
+                                    <span
+                                      style={{ color: "red", fontSize: "20px" }}
+                                    >
+                                      <b>{msg}</b>
+                                    </span>
+                                  )}
+                                </ErrorMessage>
                               </td>
-                              <td className="special-col">
+                              {/* <td className="special-col">
                                 <input
                                   type="file"
                                   name="image"
@@ -1233,7 +1290,7 @@ function TradeLog() {
                                   onClick={() => setShowPrev((prev) => !prev)}
                                 />
                                 <ErrorMessage name="image" component="div" />
-                              </td>
+                              </td> */}
 
                               <td>
                                 <button
@@ -1273,28 +1330,11 @@ function TradeLog() {
                                     )
                                 )}
 
-                              <td>
-                                <Field
-                                  type="text"
-                                  name="dynamicColumnsField"
-                                  value={values.dynamicColumnsField}
-                                  onChange={(e) =>
-                                    setFieldValue(
-                                      "dynamicColumnsField",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </td>
 
                               <td>
-                                <button
-                                  type="button"
-                                  className="submit-btn"
-                                  onClick={() => {
-                                    handleSaveSubmit(values, token);
-                                  }}
-                                >
+                                <button type="submit" className="submit-btn" onClick={() => {
+                                  handleSaveSubmit(values, token);
+                                }}>
                                   Save
                                 </button>
                               </td>
@@ -1317,7 +1357,6 @@ function TradeLog() {
                                 trade_pnl: item?.trade_pnl || "",
                                 position: item?.position || "",
                                 buy_sell: item?.buy_sell || "",
-                                trade_remark: item?.trade_remark || "",
                                 trade_karma: item?.trade_karma || "",
                                 trade_date1: new Date(item?.trade_date) || "",
                                 holding_trade_type:
@@ -1332,14 +1371,11 @@ function TradeLog() {
                                 reason_for_trade: item?.reason_for_trade || "",
                                 percentage_of_account_risked:
                                   item?.percentage_of_account_risked || "",
-                                image: item?.image || "",
+                                // image: item?.image || "",
                                 trade_slippage: item?.trade_slippage || "",
                                 trade_penalties: item?.trade_penalties || "",
                                 net_roi: item?.net_roi || "",
-                                trade_customizable:
-                                  item?.trade_customizable || "",
                                 opening_balance: item?.opening_balance || "",
-                                trade_tags: item?.trade_tags || "",
                                 comment: item?.comment || "",
                                 questionnaire_answers:
                                   item?.questionnaire_answers || [],
@@ -1378,6 +1414,7 @@ function TradeLog() {
                                             );
                                           }}
                                           dateFormat="yyyy-MM-dd"
+                                          maxDate={new Date()}
                                         />
                                       ) : (
                                         new Date(
@@ -1387,6 +1424,7 @@ function TradeLog() {
                                     </td>
                                     <td>
                                       <Field
+                                        style={{ border: "none" }}
                                         as="select"
                                         name="asset_class"
                                         id="asset_class"
@@ -1440,6 +1478,7 @@ function TradeLog() {
                                     </td>
                                     <td>
                                       <Field
+                                        style={{ border: "none" }}
                                         as="select"
                                         name="buy_sell"
                                         disabled={!edit}
@@ -1452,7 +1491,9 @@ function TradeLog() {
                                           )
                                         }
                                       >
-                                        <option>Select</option>
+                                        <option value="" disabled>
+                                          Select
+                                        </option>
                                         <option value="Buy">Buy</option>
                                         <option value="Sell">Sell</option>
                                       </Field>
@@ -1610,6 +1651,7 @@ function TradeLog() {
                                         <>
                                           <Field
                                             as="select"
+                                            style={{ border: "none" }}
                                             name="strategy_used"
                                             disabled={!edit}
                                             value={item?.strategy_used}
@@ -1641,6 +1683,7 @@ function TradeLog() {
                                     <td>
                                       <Field
                                         as="select"
+                                        style={{ border: "none" }}
                                         name="holding_trade_type"
                                         disabled={!edit}
                                         onChange={(e) =>
@@ -1677,6 +1720,7 @@ function TradeLog() {
                                     <td>
                                       <Field
                                         as="select"
+                                        style={{ border: "none" }}
                                         name="trade_conviction"
                                         disabled={!edit}
                                         value={item?.trade_conviction}
@@ -1776,6 +1820,7 @@ function TradeLog() {
                                     <td>
                                       <Field
                                         as="select"
+                                        style={{ border: "none" }}
                                         name="trade_karma"
                                         disabled={!edit}
                                         value={item?.trade_karma}
@@ -1927,6 +1972,7 @@ function TradeLog() {
                                         <>
                                           <Field
                                             as="select"
+                                            style={{ border: "none" }}
                                             name="trading_account"
                                             disabled={!edit}
                                             value={item?.trading_account}
@@ -1984,7 +2030,7 @@ function TradeLog() {
                                         ).toFixed(2)
                                       )}
                                     </td>
-                                    <td>
+                                    {/* <td>
                                       <img
                                         src={item?.image}
                                         style={{
@@ -1993,7 +2039,7 @@ function TradeLog() {
                                           margin: "auto",
                                         }}
                                       />
-                                    </td>
+                                    </td> */}
                                     <td>
                                       <button
                                         style={{
@@ -2074,6 +2120,8 @@ function TradeLog() {
             handlePrevious={handlePrevious}
             handleNext={handleNext}
             handlePageClick={handlePageClick}
+            handleFirst={handleFirst}
+            handleLast={handleLast}
           />
         </div>
       ) : isLoading ? (
@@ -2200,7 +2248,6 @@ function TradeLog() {
                             </button>
                           )}
                         </th>
-                        <th key={"heads"}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2213,7 +2260,6 @@ function TradeLog() {
                             trade_pnl: "",
                             position: "",
                             buy_sell: "",
-                            trade_remark: "",
                             trade_karma: "",
                             trade_date: "",
                             holding_trade_type: "",
@@ -2226,13 +2272,11 @@ function TradeLog() {
                             trade_risk: "",
                             reason_for_trade: "",
                             percentage_of_account_risked: "",
-                            image: "",
+                            // image: "",
                             trade_slippage: "",
                             trade_penalties: "",
                             net_roi: "",
-                            trade_customizable: "",
                             opening_balance: "",
-                            trade_tags: "",
                             comment: "",
                             dynamicColumnsField: "",
                             asset_class: "",
@@ -2264,6 +2308,7 @@ function TradeLog() {
                                       setFieldValue("trade_date", date); // Update the formik value
                                     }}
                                     dateFormat="yyyy-MM-dd"
+                                    maxDate={new Date()}
                                   />
                                   <ErrorMessage
                                     name="trade_date"
@@ -2515,7 +2560,7 @@ function TradeLog() {
                                     component="div"
                                   />
                                 </td>
-                                <td className="special-col">
+                                {/* <td className="special-col">
                                   <input
                                     type="file"
                                     name="image"
@@ -2540,7 +2585,7 @@ function TradeLog() {
                                     onClick={() => setShowPrev((prev) => !prev)}
                                   />
                                   <ErrorMessage name="image" component="div" />
-                                </td>
+                                </td> */}
 
                                 <td>
                                   <button
@@ -2596,7 +2641,7 @@ function TradeLog() {
 
                                 <td>
                                   <button
-                                    type="button"
+                                    type="submit"
                                     className="submit-btn"
                                     onClick={() => {
                                       handleSaveSubmit(values, token);
@@ -2630,24 +2675,8 @@ function TradeLog() {
       ) : (
         <div className="customFilterButton">
           <ul>
-            <button
-              className="flex justify-center items-center cursor-pointer"
-              disabled
-              onClick={() => {
-                setEdit(true);
-              }}
-            >
-              Edit{" "}
-              <span>
-                <img src={EditIcon} alt="edit filter" />
-              </span>
-            </button>
-            <button onClick={togglePopUp} className=" cursor-pointer" disabled>
-              Filters{" "}
-              <span>
-                <img src={FilterIcon} alt="main filter" />
-              </span>
-            </button>
+            <button>Edit </button>
+            <button>Filters </button>
           </ul>
         </div>
       )}

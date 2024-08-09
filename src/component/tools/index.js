@@ -253,22 +253,23 @@ const Tools = () => {
                 })}
             </ul>
             {toolsHeadersCurrent == "Sessions" ? (
-              <>
+              <div className="sav_res">
+                <div className="reset-button">
                 <Button
-                  variant="primary"
-                  className="reset-button"
+                  
                   onClick={onSaveSession}
                 >
                   Save
                 </Button>
+                </div>
+                <div className="reset-button">
                 <Button
-                  variant="outline-primary"
-                  className="reset-button"
                   onClick={onResetSessionsData}
                 >
                   Reset
                 </Button>
-              </>
+                </div>
+              </div>
             ) : toolsHeadersCurrent == "Previous Tradebook" ? (
               <div className="buttons-section">
                 <Button

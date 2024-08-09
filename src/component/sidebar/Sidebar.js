@@ -30,7 +30,7 @@ const Sidebar = ({ state, setState }) => {
       <div className={`sidebar ${state?.collapsed ? "is-open" : "is-close"}`}>
         <div className="sidebar-header">
           <div>
-            <div onClick={() => handleNavigate("/")} style={{marginLeft:"-13px",display:"flex",justifyContent:"center",alignItems:"center"}}>
+            <div onClick={() => handleNavigate("/dashboard")} style={{marginLeft:"-13px",display:"flex",justifyContent:"center",alignItems:"center"}}>
               <img src={Logo} alt="Logo" height={40} width={40}/>
               {state?.collapsed ? (
                 <span className="nav-items" style={{fontSize:"1.25rem",fontWeight:"600",fontFamily:"DM Sans, sans-serif", color:"white"}}>My Trade Journal</span>
@@ -54,7 +54,7 @@ const Sidebar = ({ state, setState }) => {
         </div>
         <div className="sidebar-header">
           <div>
-            <div onClick={() => handleNavigate("/tradelog")}>
+            <div onClick={() => handleNavigate("/tradelog")} id="dimg">
               <img src={pennewSquer} alt="Logo" id="imggg" />
               {state?.collapsed ? (
                 <span className="text-light nav-items ms-2">Trade log</span>
@@ -66,7 +66,7 @@ const Sidebar = ({ state, setState }) => {
         </div>
         <div className="sidebar-header ">
           <div>
-            <div onClick={() => handleNavigate("/trader-analytics")}>
+            <div onClick={() => handleNavigate("/trader-analytics")} id="dimg">
               <img src={ActivityLogo} alt="Logo" id="imggg" />
               {state?.collapsed ? (
                 <span className="text-light nav-items ms-2">
@@ -80,7 +80,7 @@ const Sidebar = ({ state, setState }) => {
         </div>
         <div className="sidebar-header ">
           <div>
-            <div onClick={() => handleNavigate("/trading-accounts")}>
+            <div onClick={() => handleNavigate("/trading-accounts")} id="dimg">
               <img src={ChartLogo} alt="Logo" id="imggg"/>
               {state?.collapsed ? (
                 <span className="text-light nav-items ms-2">
@@ -94,7 +94,7 @@ const Sidebar = ({ state, setState }) => {
         </div>
         <div className="sidebar-header">
           <div>
-            <div onClick={() => handleNavigate("/strategies")}>
+            <div onClick={() => handleNavigate("/strategies")} id="dimg">
               <img src={RoundGraph} alt="Logo" id="imggg"/>
               {state?.collapsed ? (
                 <span className="text-light nav-items ms-2">Strategies</span>
@@ -106,7 +106,7 @@ const Sidebar = ({ state, setState }) => {
         </div>
         <div className="sidebar-header">
           <div>
-            <div onClick={() => handleNavigate("/calculator")}>
+            <div onClick={() => handleNavigate("/calculator")} id="dimg">
               <img src={SidebarLogo} alt="Logo" id="imggg"/>
               {state?.collapsed ? (
                 <span className="text-light nav-items ms-2">Calculator</span>
@@ -118,7 +118,7 @@ const Sidebar = ({ state, setState }) => {
         </div>
         <div className="sidebar-header">
           <div>
-            <div onClick={() => handleNavigate("/tools")}>
+            <div onClick={() => handleNavigate("/tools")} id="dimg">
               <img src={SettingLogo} alt="Logo" id="imggg"/>
               {state?.collapsed ? (
                 <span className="text-light nav-items ms-2">Tools</span>

@@ -1,7 +1,7 @@
 // LPRoutes.js
 import React from "react";
 import "./LPR.css";
-import { Route, Routes,  useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { Fade } from "react-awesome-reveal";
 
 import About from "../components/About/About";
@@ -25,17 +25,28 @@ import PrivateRoute from "../component/widgets/PrivateRoutes";
 import Dashboard from "../component/dashboard/dashboard";
 import ForgotPassword from "../component/auth/forgetPassword";
 import ResetPassword from "../component/auth/ResetPassword";
+import Billing from "../components/Billing/Billing";
 
 function LPRoutes() {
-
   const location = useLocation();
   const pathsToHideNavbarAndFooter = [
-    "/login", "/signup", "/forgetpassword",
-    "/tradelog", "/strategies", "/trading-accounts", "/trader-analytics",
-    "/tools", "/calendar", "/calculator", "/mantra", "/userinfo", 
-    "/editProfile", "/dashboard", "/reset-password"
+    "/login",
+    "/signup",
+    "/forgetpassword",
+    "/tradelog",
+    "/strategies",
+    "/trading-accounts",
+    "/trader-analytics",
+    "/tools",
+    "/calendar",
+    "/calculator",
+    "/mantra",
+    "/userinfo",
+    "/editProfile",
+    "/dashboard",
+    "/reset-password",
   ];
-  const shouldHideNavbarAndFooter = pathsToHideNavbarAndFooter.some(path =>
+  const shouldHideNavbarAndFooter = pathsToHideNavbarAndFooter.some((path) =>
     location.pathname.startsWith(path)
   );
 
@@ -43,7 +54,7 @@ function LPRoutes() {
     <>
       <ScrollToTop />
       <div className="App">
-      {!shouldHideNavbarAndFooter && <Navbar />}
+        {!shouldHideNavbarAndFooter && <Navbar />}
         <Routes>
           <Route
             path="/"
@@ -76,6 +87,14 @@ function LPRoutes() {
             element={
               <Fade direction="top">
                 <FAQ />
+              </Fade>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <Fade direction="top">
+                <Billing />
               </Fade>
             }
           />
@@ -122,7 +141,7 @@ function LPRoutes() {
         </Routes>
         {!shouldHideNavbarAndFooter && <Footer />}
       </div>
-      </>
+    </>
   );
 }
 

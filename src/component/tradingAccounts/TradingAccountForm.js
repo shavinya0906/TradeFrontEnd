@@ -1,27 +1,32 @@
 import { useFormik } from "formik";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { tradingAccountAdd } from "../../store/slice/tradingAccountsSlice";
+import {
+  tradingAccountAdd,
+  tradingAccountEdit,
+} from "../../store/slice/tradingAccountsSlice";
 
-const TradingAccountForm = ({ setFormStatus }) => {
+const TradingAccountForm = ({ setFormStatus, currentAccount }) => {
   const token = useSelector((state) => state?.auth?.token);
   const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {
-      account_client_id: "",
-      account_mobile: "",
-      account_email: "",
-      account_name: "",
-      trading_account: "",
-      purpose: "",
+      account_client_id: currentAccount?.account_client_id || "",
+      account_mobile: currentAccount?.account_mobile || "",
+      account_email: currentAccount?.account_email || "",
+      account_name: currentAccount?.account_name || "",
+      trading_account: currentAccount?.trading_account || "",
+      purpose: currentAccount?.purpose || "",
     },
+    enableReinitialize: true,
     onSubmit: (values) => {
-      const payload = {
-        token: token,
-        values,
-      };
-      console.log(payload, "payloaddd");
-      dispatch(tradingAccountAdd(payload));
+      if (currentAccount) {
+        // Editing existing account
+        dispatch(tradingAccountEdit({ id: currentAccount?.id, values, token }));
+      } else {
+        // Adding new account
+        dispatch(tradingAccountAdd({ values, token }));
+      }
       setFormStatus("list");
     },
   });
@@ -116,8 +121,12 @@ const TradingAccountForm = ({ setFormStatus }) => {
               }}
             >
               Cancel
-            </button>
-            <button className="save" onClick={formik.handleSubmit}>
+            </button> 
+            <button
+              className="save"
+              type="submit"
+              onClick={formik.handleSubmit}
+            >
               {" "}
               Save{" "}
             </button>

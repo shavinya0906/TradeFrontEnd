@@ -129,7 +129,7 @@ const PositionSize = () => {
           </div>
           <div className="buttons-area">
             <Button
-              variant="outline-primary"
+              variant="primary"
               className="calculate-button"
               onClick={onResetFields}
             >

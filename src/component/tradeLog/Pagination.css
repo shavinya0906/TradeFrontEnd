@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 10px;
     margin-bottom: 60px;
 
     button {
@@ -9,6 +10,7 @@
         padding: 8px 12px;
         cursor: pointer;
         border: none;
+        border-radius: 5px;
         background-color: #e0e0e0;
     }
 
@@ -16,4 +18,11 @@
         background-color: #007bff;
         color: #fff;
     }
+}
+
+.imgs{
+    height: 15px;
+    width: 15px;
+    margin: "5px";
+    cursor: pointer;
 }

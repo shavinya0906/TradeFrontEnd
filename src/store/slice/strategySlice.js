@@ -32,8 +32,7 @@ export const strategyAdd = createAsyncThunk(
 export const strategyEdit = createAsyncThunk(
   "strategy/strategyEdit",
   async (data) => {
-    const { strategies_Id } = data.values;
-    delete data.values.strategies_Id;
+    const strategies_Id = data?.id;
     const response = await axios.put(
       `${apiUrl}/strategies/update/${strategies_Id}`,
       data?.values,
@@ -51,7 +50,7 @@ export const strategyEdit = createAsyncThunk(
 export const strategyRemove = createAsyncThunk(
   "strategy/strategyRemove",
   async (data) => {
-    const { strategies_Id } = data.values;
+    const strategies_Id = data.strategy_Id;
     const response = await axios.delete(
       `${apiUrl}/strategies/${strategies_Id}`,
       {
@@ -61,6 +60,9 @@ export const strategyRemove = createAsyncThunk(
         },
       }
     );
+    if(response.data.status === 200){
+      alert("Strategy deleted");
+    }
     return response;
   }
 );

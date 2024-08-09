@@ -56,7 +56,7 @@ const AdditionFeature = () => {
   return (
     <div>
       <section className="additionfeature_">
-        <div className="container-fluid mt-5">
+        <div className="mt-5">
           <div className="row active">
             <div className="col-md-6 col-sm-6">
               <div className="box-1 pt-5 pb-5">

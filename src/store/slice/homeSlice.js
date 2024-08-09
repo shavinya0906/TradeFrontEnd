@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-// import { useSelector } from "react-redux";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 export const getDashbordData = createAsyncThunk("auth/getDashbordData", async (token) => {
@@ -9,7 +8,7 @@ export const getDashbordData = createAsyncThunk("auth/getDashbordData", async (t
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "*", 
         "Accept": "application/json"
       },
     });

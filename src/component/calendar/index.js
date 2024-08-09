@@ -87,7 +87,7 @@ const CustomCalendar = () => {
 
   const handleClose = () => {
     setIsOpen(false); // Update state to close the calendar
-    navigate("/"); // Navigate to the home page
+    navigate("/dashboard"); // Navigate to the home page
   };
 
   if (!isOpen) {
@@ -145,7 +145,7 @@ const CustomCalendar = () => {
               <div className="data-label">Loss</div>
               <div className="label-color noTrade-label-color" />
               <div className="data-label">No Trade</div>
-              <button onClick={handleClose}>Close</button> {/* Close button */}
+              <button className="close_button" onClick={handleClose}>Close</button> {/* Close button */}
             </div>
           </div>
         </div>

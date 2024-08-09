@@ -6,7 +6,7 @@
   text-align: center;
   color: rgba(27, 30, 49, 1);
   font-family: poppins;
-  font-size: 40px;
+  font-size: 30px;
 }
 #startclr {
   font-weight: 500;
@@ -20,6 +20,7 @@
   color: transparent;
 }
 .circle {
+  z-index: -1;
   width: 227px;
   height: 227px;
   background-color: rgba(244, 244, 244, 1);
@@ -90,11 +91,11 @@
 }
 
 .circle_small {
+  z-index: 1;
   width: 60px;
   height: 60px;
   background-color: rgba(255, 255, 255, 1);
-  background-color: transparent;
-  border: 1.42px dashed rgba(216, 216, 216, 1);
+  /* border: 1.42px dashed rgba(216, 216, 216, 1); */
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -203,6 +204,11 @@
 
   }
   
+}
+
+#cir{
+  margin: 0px 180px;
+  justify-content: center;
 }
 
 

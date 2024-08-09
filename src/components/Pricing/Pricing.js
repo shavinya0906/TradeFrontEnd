@@ -14,7 +14,7 @@ function Pricing() {
     <section>
       <h6 style={{ textAlign: "center", color: 'rgba(110, 110, 110, 1)', paddingTop: '5%' }}>Pricing</h6>
       <h2 className="heading1">Choose The Plan<br/> <span id="para2">That Is Right For You</span></h2>
-      <div className="container-fluid small-container">
+      <div className="small-container">
         <div className="row pb-3">
           <div className="col-xl-5 col-lg-5" id="box-3">
             <div className="vector mt-3">

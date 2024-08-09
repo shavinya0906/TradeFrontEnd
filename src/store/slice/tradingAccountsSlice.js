@@ -12,7 +12,6 @@ export const tradingAccountList = createAsyncThunk(
         authorization: `Bearer ${token}`,
       },
     });
-    console.log("===> I'm response", response);
     return response;
   }
 );
@@ -37,9 +36,12 @@ export const tradingAccountAdd = createAsyncThunk(
 export const tradingAccountEdit = createAsyncThunk(
   "tradingAccount/tradingAccountEdit",
   async (data) => {
+    console.log("h", data);
+    const tid = data?.id;
+    const tval = data?.values;
     const response = await axios.put(
-      `${apiUrl}/trading-account/update/`,
-      data?.values,
+      `${apiUrl}/trading-account/update/${tid}`,
+      tval,
       {
         headers: {
           "Content-Type": "application/json",
@@ -54,13 +56,12 @@ export const tradingAccountEdit = createAsyncThunk(
 export const tradingAccountUpdateFilter = createAsyncThunk(
   "tradingAccount/tradingAccountFilter",
   async (data) => {
-    console.log(data);
     const response = await axios.get(
-      `${apiUrl}/trading-account/${data.values}`,
+      `${apiUrl}/trading-account/${data.values}`, 
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${data?.toke}`,
+          Authorization: `Bearer ${data?.token}`,
         },
       }
     );
@@ -79,8 +80,9 @@ export const tradingAccountDelete = createAsyncThunk(
             "Content-Type": "application/json",
             Authorization: `Bearer ${data.token}`,
           },
-        }
+        } 
       );
+      if(response.status === 200){alert("Account Deleted");}
       return response;
     } catch (error) {
       // Handle error if needed
@@ -152,6 +154,7 @@ const tradingAccountSlice = createSlice({
         state.data = state.data.filter(
           (account) => account.id !== action.payload.data.id
         );
+
       })
       .addCase(tradingAccountDelete.rejected, (state, action) => {
         state.isLoading = false;

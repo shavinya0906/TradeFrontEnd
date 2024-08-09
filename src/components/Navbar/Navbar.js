@@ -7,7 +7,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const buttonStyle = {
-    backgroundColor: "rgba(27, 30, 49, 1)",
+    backgroundColor: "rgba(27, 30, 49, 1)", 
     color: "#ffffff",
     border: "none",
     padding: "10px 20px",
@@ -26,7 +26,7 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="navbar navbar-expand-lg navbar-light nav">
+      <nav className="navbar navbar-expand-lg navbar-light" id="navv">
         <div className="container">
           <button
             className="navbar-brand nav-btn"

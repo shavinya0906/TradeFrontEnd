@@ -1,16 +1,18 @@
 import React from "react";
-import "./Pagination.css"; // Import your CSS file
+import "./Pagination.css";
+import previousIcon from "../../assets/images/previousIcon.svg";
+import nextsIcon from "../../assets/images/nextsIcon.svg";
 
-const Pagination = ({ pageDetail, reduxData, handlePrevious, handleNext, handlePageClick }) => {
+const Pagination = ({ pageDetail, reduxData, handlePrevious, handleNext, handlePageClick, handleFirst, handleLast }) => {
   const totalPages = Math.ceil(reduxData?.totalRecords / pageDetail.pageSize);
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    const maxPagesToShow = 5; // Adjust this value based on your preference
+    const maxPagesToShow = 5;
 
     let startPage = Math.max(1, pageDetail.page - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
+ 
     if (pageDetail.page - startPage > Math.floor(maxPagesToShow / 2)) {
       // Show ellipsis if there are more pages before the current page
       pageNumbers.push(
@@ -39,9 +41,11 @@ const Pagination = ({ pageDetail, reduxData, handlePrevious, handleNext, handleP
 
   return (
     <div className="pagination-container">
-      {pageDetail.page > 1 && <button onClick={handlePrevious}>Previous</button>}
+      {pageDetail.page > 1 && <button onClick={handleFirst}>First</button>}
+      {pageDetail.page > 1 && <img className="imgs" src={previousIcon} alt="previous" onClick={handlePrevious}/>}
       {renderPageNumbers()}
-      {pageDetail.page < totalPages && <button onClick={handleNext}>Next</button>}
+      {pageDetail.page < totalPages && <img className="imgs" src={nextsIcon} alt="next" onClick={handleNext}/>}
+      {pageDetail.page < totalPages && <button onClick={handleLast}>Last</button>}
     </div>
   );
 };

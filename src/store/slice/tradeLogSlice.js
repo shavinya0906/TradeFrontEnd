@@ -161,28 +161,23 @@ const tradeLogSlice = createSlice({
       },
       {
         name: "Conviction",
-        data: ["Low", "Medium", "High", " Borrowed(tip)", "Gambler", "Jackpot"],
+        data: ["Low", "Medium", "High"],
         active: false,
         path: "conviction",
-        // selected: ["Low"],
         selected: [],
       },
 
       {
         name: "Trading account",
-        data: ["Account A", "Account B"],
         active: false,
         path: "tradeAccount",
-        // selected: ["Strategy 1"],
         selected: [],
       },
       {
         name: "Strategy used",
-        data: ["Strategy 1", "Strategy 2"],
         active: false,
         path: "strategyUsed",
         selected: [],
-        // selected: ["Account A"],
       },
     ],
   },
@@ -230,8 +225,6 @@ const tradeLogSlice = createSlice({
 
       .addCase(tradeLogAdd.fulfilled, (state, action) => {
         state.isLoading = false;
-        // state.isAddedOrEdited = true;
-        // state.data = action?.payload?.data;
       })
       .addCase(tradeLogAdd.rejected, (state, action) => {
         state.isLoading = false;

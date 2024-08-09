@@ -112,7 +112,6 @@ const CurveChart = ({ dataList }) => {
   useEffect(() => {
     if (dataList?.equityCurveData?.length) {
       const data = sortDataBy(dataList?.equityCurveData);
-      console.log(data,"dataaaaa")
       setGraphData(data);
     }
   }, [dataList]);

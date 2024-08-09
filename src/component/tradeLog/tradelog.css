@@ -111,6 +111,11 @@
   background-color: #7d67ff;
 }
 
+.selectopt{
+  border: 1px black solid;
+}
+
+
 .save-btn {
   padding: 9px 16px;
   background: #7d67ff;

@@ -88,21 +88,6 @@ const TradeAnalytics = () => {
   const endDate = currentEnd || oldEnd;
 
   let currentMon = new Date().getMonth;
-  // reduxData.analytics.monthsName[moment(startDate).format("M")];
-
-  // currentMon = currentMon.slice(0, 3) + " " + moment(startDate).format("YYYY");
-
-  // useEffect(() => {
-  //   if (startDate && endDate) {
-  //     dispatch(
-  //       tradeAnalyticsData({
-  //         token,
-  //         data: [startDate, endDate],
-  //         path,
-  //       })
-  //     );
-  //   }
-  // }, [reduxData.trades.end, path]);
 
   useEffect(() => {
     if (

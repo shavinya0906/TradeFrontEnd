@@ -41,7 +41,11 @@ const Signup = () => {
         /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/,
         "Phone number is not valid"
       ),
-    password: Yup.string().required("Enter your password"),
+    password: Yup.string().required("Enter your password")
+    .min(8, "Password must be at least 5 characters long")
+    .matches(/[A-Z]/, "Password must have at least one uppercase letter")
+    .matches(/[0-9]/, "Password must have at least one numeric digit")
+    .matches(/[@$!%*?&#_]/, "Password must have at least one special character")
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {

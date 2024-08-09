@@ -2,28 +2,32 @@ import { useState } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
 
-const StrategyContext = createContext();
+const TradingAccContext = createContext();
 
-export const useStrategy = () => useContext(StrategyContext);
+export const useTradingAcc = () => useContext(TradingAccContext);
 
-export const StrategyProvider = ({ children }) => {
+export const TradingAccProvider = ({ children }) => {
   const [formData, setFormData] = useState({
-    strategies_name: "",
-    strategies_desc: "", 
+    account_client_id: "",
+      account_mobile: "",
+      account_email: "",
+      account_name: "",
+      trading_account: "",
+      purpose: "",
   });
   const [formToggle, setFormToggle] = useState(false);
   const [formStatus, setFormStatus] = useState("none");
   const value = {
     formData,
     setFormData,
-    formToggle,
+    formToggle, 
     setFormToggle,
     formStatus,
     setFormStatus
   };
   return (
-    <StrategyContext.Provider value={value}>
+    <TradingAccContext.Provider value={value}>
       {children}
-    </StrategyContext.Provider>
+    </TradingAccContext.Provider>
   );
 };

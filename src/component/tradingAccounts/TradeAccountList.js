@@ -1,11 +1,11 @@
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   tradingAccountDelete,
-  tradingAccountEdit,
-} from "../../store/slice/tradingAccountsSlice";
+} from "../../store/slice/tradingAccountsSlice"; 
 
-const TradeAccountList = ({ list, setFormStatus }) => {
+const TradeAccountList = ({ list, setFormStatus, onEdit }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -13,14 +13,13 @@ const TradeAccountList = ({ list, setFormStatus }) => {
     dispatch(
       tradingAccountDelete({
         accountId: accountId,
-        token: token,
+        token: token, 
       })
     );
   };
 
   const handleEdit = (account) => {
-    dispatch(tradingAccountEdit(account));
-    // Add logic to handle opening the edit form
+    onEdit(account); // Use the passed onEdit function
   };
 
   return (
@@ -40,7 +39,7 @@ const TradeAccountList = ({ list, setFormStatus }) => {
           {"  "}
           <button
             className="ed-del-btn"
-            onClick={() => handleDelete(el?.account_Id)}
+            onClick={() => handleDelete(el?.id)}
           >
             Delete
           </button>

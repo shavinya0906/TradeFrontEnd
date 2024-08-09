@@ -28,6 +28,7 @@
     }
     .react-datepicker-wrapper {
       max-height: 49.609px;
+      width: 17%;
     }
 
     .outline-button-cal,
@@ -95,14 +96,14 @@
 .DateInput {
   border-radius: 8.444px;
   background: #f8f7ff;
-  width: 216.379px;
+  width: 190px;
   height: 49.609px;
   box-shadow: none;
   border: none;
   margin-right: 31px;
-  color: #a5a2b8;
+  color: #8b899b;
   font-family: "DM Sans", sans-serif;
-  font-size: 16.888px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
@@ -142,4 +143,8 @@
 
 #dropdown-basic{
   margin-top: 5px;
+}
+
+.linkc{
+  background-color: black;
 }
